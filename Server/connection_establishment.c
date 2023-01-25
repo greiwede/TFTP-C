@@ -3,7 +3,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#include "../IO/constants.h"
+#include "../Shared/constants.h"
 
 int bind_control_socket(int control_socket) {
     struct sockaddr_in server_addr;

@@ -9,6 +9,7 @@
 #include "connection_establishment.h"
 #include "../Shared/read_packets.h"
 #include "../Shared/constants.h"
+#include "../Shared/packets.h"
 
 int main() {
     int control_socket;
