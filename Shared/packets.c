@@ -5,6 +5,47 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "../Shared/utils.h"
+
+void free_packet_meta(struct packet_meta * packet) {
+    free(packet->ptr);
+    free(packet);
+}
+
+void free_request_packet(struct request_packet * packet) {
+    free(packet->file_name);
+    // note: mode does not need to be deallocated as its a pointer to a static string
+    free(packet);
+}
+
+void free_data_packet(struct data_packet * packet) {
+    free(packet->data);
+    free(packet);
+}
+
+void free_ack_packet(struct ack_packet * packet) {
+    free(packet);
+}
+
+void free_error_packet(struct error_packet * packet) {
+    free(packet->error_message);
+    free(packet);
+}
+
+// TODO: change methods: frame -> struct and parameters -> frame
+
+// FIXME: wie wird 1 zu 16?
+int identify_packet_type(uint8_t * frame) {
+    uint16_t opcode = ntohs(uint8_buf_to_uint16(frame));
+    printf("packet type: %i \n", opcode);
+    if (opcode >= 0 && opcode <= 5) {
+        return opcode;
+    } else {
+        return -1;
+    }
+}
+
+// TODO: htons when building frame
 request_packet * build_request_packet(uint16_t opcode, char * file_name, char * mode) {
     struct request_packet * packet = malloc(sizeof(struct request_packet));
     packet->opcode = htons(opcode);
@@ -45,9 +86,13 @@ packet_meta * build_request_frame(request_packet * information) {
     meta->length = OPCODE_LENGTH + file_name_length
         + ZERO_BYTE_LENGTH + mode_length + ZERO_BYTE_LENGTH;
     meta->ptr = malloc(meta->length);
+    memset(meta->ptr, 0, meta->length);
 
     int offset = 0;
-    *(meta->ptr) = information->opcode;
+    printf("network order opcode building frame: %u \n", information->opcode);
+    uint16_to_uint8_buf(information->opcode, meta->ptr);
+    printf("byte 1: %u \n", *meta->ptr);
+    printf("byte 2: %u \n", *(meta->ptr + 1));
     offset += OPCODE_LENGTH;
     memcpy(meta->ptr, information->file_name, file_name_length);
     offset += file_name_length;
@@ -66,11 +111,11 @@ packet_meta * build_data_frame(data_packet * information) {
     meta->ptr = malloc(meta->length);
 
     int offset = 0;
-    *(meta->ptr) = information->opcode;
+    uint16_to_uint8_buf(information->opcode, meta->ptr);
     offset += OPCODE_LENGTH;
-    *(meta->ptr) = information->block_no;
+    uint16_to_uint8_buf(information->opcode, meta->ptr + offset);
     offset += BLOCK_NO_LENGTH;
-    memcpy(meta->ptr, information->data, information->data_length);
+    memcpy(meta->ptr + offset, information->data, information->data_length);
 
     return meta;
 }
@@ -81,9 +126,9 @@ packet_meta * build_ack_frame(ack_packet * information) {
     meta->ptr = malloc(meta->length);
 
     int offset = 0;
-    *(meta->ptr) = information->opcode;
+    uint16_to_uint8_buf(information->opcode, meta->ptr);
     offset += OPCODE_LENGTH;
-    *(meta->ptr) = information->block_no;
+    uint16_to_uint8_buf(information->opcode, meta->ptr + offset);
 
     return meta;
 }
@@ -96,12 +141,12 @@ packet_meta * build_error_frame(error_packet * information) {
     meta->ptr = malloc(meta->length);
 
     int offset = 0;
-    *(meta->ptr) = information->opcode;
+    uint16_to_uint8_buf(information->opcode, meta->ptr);
     offset += OPCODE_LENGTH;
-    *(meta->ptr) = information->error_code;
+    uint16_to_uint8_buf(information->error_code, meta->ptr + offset);
     offset += ERROR_CODE_LENGTH;
-    memcpy(meta->ptr, information->error_message, error_message_length);
+    memcpy(meta->ptr + offset, information->error_message, error_message_length);
     offset += error_message_length;
-    memset(meta->ptr, 0, ZERO_BYTE_LENGTH);
+    memset(meta->ptr + offset, 0, ZERO_BYTE_LENGTH);
     return meta;
 }

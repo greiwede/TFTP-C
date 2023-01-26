@@ -30,6 +30,7 @@ int main() {
     }
 
     while (1) {
+        memset(buf, '\0', REQUEST_PACKET_LENGTH);
         if ((recv_len = recvfrom(
                         control_socket,
                         buf,
@@ -48,18 +49,20 @@ int main() {
             return 1;
         }
 
+        int packet_type = identify_packet_type(buf);
+
         ssize_t sent_bytes;
         if ((sent_bytes = sendto(
                     data_socket,
                     &buf,
-                    sizeof(recv_len),
+                    recv_len,
                     0,
                     (struct sockaddr *) &client_addr,
                     (socklen_t) client_length))
                 == -1) {
             printf("Problem sending stuff: %i \n", errno);
 		}
-
+        printf("Sent %zi bytes \n", sent_bytes);
     }
 
     close(control_socket);
