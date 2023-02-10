@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>

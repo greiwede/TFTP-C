@@ -1,6 +1,7 @@
 #include "utils.h"
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
 
 void uint16_to_uint8_buf(uint16_t value, uint8_t * ptr) {

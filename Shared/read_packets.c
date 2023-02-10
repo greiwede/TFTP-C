@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "constants.h"
+#include "packets.h"
 
 int read_timeout(
         int socket_fd,
