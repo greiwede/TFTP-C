@@ -36,6 +36,7 @@ int main() {
         char request_type = inquire_request_type();
         char * file_name = inquire_file_name();
 
+        printf("request type: %i \n", request_type);
         struct request_packet * packet = build_request_packet(
                 request_type,
                 file_name,

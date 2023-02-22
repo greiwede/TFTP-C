@@ -4,16 +4,17 @@
 #include "../Shared/packets.h"
 
 uint16_t inquire_request_type() {
-    char requested_mode;
+    unsigned char requested_mode;
     do {
         fflush(stdin);
-        printf("Specify mode [0 for read, 1 for write]: \n");
+        // FIXME: Flushing Only works on MAC
+        printf("Specify mode [1 for read, 2 for write]: \n");
         requested_mode  = getchar();
-    } while (requested_mode != '0' && requested_mode != '1');
+    } while (requested_mode != '1' && requested_mode != '2');
 
     fflush(stdin); // getchar only reads one byte, if user enters more the buffer is not empty
 
-    if (requested_mode == '0') {
+    if (requested_mode == '1') {
         return OPCODE_RRQ;
     } else {
         return OPCODE_WRQ;

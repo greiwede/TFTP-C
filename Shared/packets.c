@@ -37,6 +37,7 @@ void free_error_packet(struct error_packet * packet) {
 
 // FIXME: wie wird 1 zu 16?
 int identify_packet_type(uint8_t * frame) {
+    printf("%i",uint8_buf_to_uint16(frame));
     uint16_t opcode = ntohs(uint8_buf_to_uint16(frame));
     printf("packet type: %i \n", opcode);
     if (opcode >= 0 && opcode <= 5) {
@@ -47,18 +48,18 @@ int identify_packet_type(uint8_t * frame) {
 }
 
 // TODO: htons when building frame
-request_packet * build_request_packet(uint16_t opcode, char * file_name, char * mode) {
+uint8_t * build_request_packet(uint16_t opcode, char * file_name, char * mode) {
     struct request_packet * packet = malloc(sizeof(struct request_packet));
-    packet->opcode = htons(opcode);
+    packet->opcode = opcode;
     packet->file_name = file_name;
     packet->mode = mode;
     return packet;
 }
 
-data_packet * build_data_packt(uint16_t block_no, uint8_t * data, int data_length) {
+data_packet * build_data_packet(uint16_t block_no, uint8_t * data, int data_length) {
     struct data_packet * packet = malloc(sizeof(struct data_packet));
-    packet->opcode = htons(OPCODE_DATA);
-    packet->block_no = htons(block_no);
+    packet->opcode = OPCODE_DATA;
+    packet->block_no = block_no;
     packet->data = data;
     packet->data_length = data_length;
     return packet;
@@ -91,6 +92,7 @@ packet_meta * build_request_frame(request_packet * information) {
 
     int offset = 0;
     printf("network order opcode building frame: %u \n", information->opcode);
+    printf("%i",information->opcode);
     uint16_to_uint8_buf(information->opcode, meta->ptr);
     printf("byte 1: %u \n", *meta->ptr);
     printf("byte 2: %u \n", *(meta->ptr + 1));
