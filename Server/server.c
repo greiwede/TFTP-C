@@ -31,7 +31,7 @@ int main() {
     }
 
     while (1) {
-        memset(buf, '\0', REQUEST_PACKET_LENGTH);
+        memset(buf, 0, REQUEST_PACKET_LENGTH);
         if ((recv_len = recvfrom(
                         control_socket,
                         buf,
@@ -45,17 +45,25 @@ int main() {
         }
         printf("received %i bytes \n", recv_len);
 
+        printf("received guack: \n");
+        for (int i = 0; i<recv_len; i++) {
+            printf("byte %i: %i\n", i, *(buf + i));
+        }
+
+        int packet_type = identify_packet_type(buf);
+        printf("packet type: %i \n", packet_type);
+
+        // FIXME: only proceed if request type
+
         if ((data_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
             printf("couldn't build socket");
             return 1;
         }
 
-        int packet_type = identify_packet_type(buf);
-
         ssize_t sent_bytes;
         if ((sent_bytes = sendto(
                     data_socket,
-                    &buf,
+                    buf,
                     recv_len,
                     0,
                     (struct sockaddr *) &client_addr,

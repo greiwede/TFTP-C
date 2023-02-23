@@ -36,26 +36,29 @@ int main() {
         char request_type = inquire_request_type();
         char * file_name = inquire_file_name();
 
-        printf("request type: %i \n", request_type);
         struct request_packet * packet = build_request_packet(
                 request_type,
                 file_name,
                 MODE_NETASCII);
-        struct packet_meta * frame =  build_request_frame(packet);
+        struct packet_meta * packet_meta =  build_request_frame(packet);
 
         ssize_t sent_bytes;
         if ((sent_bytes = sendto(
                     socket_fd,
-                    &frame->ptr,
-                    frame->length,
+                    &packet_meta->ptr,
+                    packet_meta->length,
                     0,
                     (struct sockaddr *) &server_control_addr,
                     (socklen_t) server_control_length))
                 == -1) {
             printf("Problem sending stuff: %i \n", errno);
 		}
+        printf("received guack: \n");
+        for (int i = 0; i<packet_meta->length; i++) {
+            printf("byte %i: %i\n", i, *(packet_meta->ptr + i));
+        }
         free_request_packet(packet);
-        free_packet_meta(frame);
+        free_packet_meta(packet_meta);
 
         ssize_t recv_len;
         if ((recv_len = recvfrom(

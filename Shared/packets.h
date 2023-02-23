@@ -10,7 +10,7 @@
 
 /*
  *
- * TODO: fix to correct size
+ * FIXME: fix to correct size
  */
 #define REQUEST_PACKET_LENGTH 100
 
@@ -56,6 +56,7 @@ typedef struct __attribute__((__packed__)) request_packet {
     uint16_t opcode;
     char * file_name;
     char * mode;
+    // note: mode does not need to be deallocated as its a pointer to a static string
 } request_packet;
 
 typedef struct __attribute__((__packed__)) data_packet {
