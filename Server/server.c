@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include "connection_establishment.h"
 #include "../Shared/read_packets.h"
@@ -41,7 +42,7 @@ int main() {
                         (socklen_t *) &client_length))
                     == -1) {
             printf("Failed receiving data \n");
-            break;
+            continue;
         }
         printf("received %i bytes \n", recv_len);
 
@@ -54,6 +55,9 @@ int main() {
         printf("packet type: %i \n", packet_type);
 
         // FIXME: only proceed if request type
+        if (packet_type != OPCODE_RRQ || packet_type != OPCODE_WRQ) {
+
+        }
 
         if ((data_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
             printf("couldn't build socket");

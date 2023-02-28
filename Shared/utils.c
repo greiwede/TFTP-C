@@ -11,7 +11,7 @@ void uint16_to_uint8_buf(uint16_t value, uint8_t * ptr) {
 
 int uint8_buf_to_uint16(uint8_t * ptr) {
     uint16_t value = 0;
-    value += *(ptr);
-    value += *(ptr + 1) << 8;
+    value += *(ptr + 1);
+    value += *(ptr) << 8;
     return value;
 }

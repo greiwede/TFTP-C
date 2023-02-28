@@ -45,7 +45,7 @@ int main() {
         ssize_t sent_bytes;
         if ((sent_bytes = sendto(
                     socket_fd,
-                    &packet_meta->ptr,
+                    packet_meta->ptr,
                     packet_meta->length,
                     0,
                     (struct sockaddr *) &server_control_addr,

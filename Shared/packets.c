@@ -35,6 +35,7 @@ void free_error_packet(struct error_packet * packet) {
 
 int identify_packet_type(uint8_t * frame) {
     uint16_t opcode = ntohs(uint8_buf_to_uint16(frame));
+    printf("Opcode: %i \n",opcode);
     if (opcode >= 0 && opcode <= 5) {
         return opcode;
     } else {

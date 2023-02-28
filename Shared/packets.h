@@ -36,6 +36,17 @@ typedef enum {
     OPCODE_ERROR = 5,
 } OPCODE;
 
+typedef enum {
+    EC_NOT_DEFINIED = 0,
+    EC_FILE_NOT_FOUND = 1,
+    EC_ACCESS_VIOLATION = 2,
+    EC_ALLOCATION_EXCEEDED = 3,
+    EC_ILLEGAL_TFTP_OP = 4,
+    EC_UNKNOWN_TRANFER_ID = 5,
+    EC_FILE_ALREADY_EXISTS = 6,
+    EC_NO_SUCH_USER = 7,
+} ERROR_CODE;
+
 #define OPCODE_LENGTH 2
 #define BLOCK_NO_LENGTH 2
 #define ZERO_BYTE_LENGTH 1
@@ -82,19 +93,6 @@ void free_request_packet(struct request_packet * packet);
 void free_data_packet(struct data_packet * packet);
 void free_ack_packet(struct ack_packet * packet);
 void free_error_packet(struct error_packet * packet);
-
-int identify_packet_type(uint8_t * frame);
-
-typedef enum {
-    NOT_DEFINED         = 0,
-    FILE_NOT_FOUND      = 1,
-    ACCESS_VIOLATION    = 2,
-    DISK_FULL           = 3,
-    ILLEGAL_OPERATION   = 4,
-    UNKNOWN_TID         = 5,
-    FILE_ALREADY_EXISTS = 6,
-    NO_SUCH_USER        = 7
-} ERROR_CODE;
 
 request_packet * build_request_packet(uint16_t opcode, char * file_name, char * mode);
 data_packet * build_data_packt(uint16_t block_no, uint8_t * data, int data_length);

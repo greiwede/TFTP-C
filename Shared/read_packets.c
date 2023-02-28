@@ -5,11 +5,12 @@
 
 #include "constants.h"
 #include "packets.h"
+#include "utils.h"
 
 int read_timeout(
         int socket_fd,
-        int8_t buf[],
-        struct sockaddr_in addr,
+        uint8_t buf[],
+        struct sockaddr_in * addr,
         int expected_block) {
 
     int recv_len;
@@ -31,4 +32,14 @@ int read_timeout(
 
     // time stop
     return recv_len;
+}
+
+int identify_packet_type(uint8_t * frame) {
+    uint16_t opcode = ntohs(uint8_buf_to_uint16(frame));
+    printf("Opcode: %i \n",opcode);
+    if (opcode >= 0 && opcode <= 5) {
+        return opcode;
+    } else {
+        return -1;
+    }
 }
