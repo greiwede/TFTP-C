@@ -1,24 +1,24 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
+
 #include <errno.h>
 #include <pthread.h>
 
 #include "connection_establishment.h"
+#include "data_channel.h"
 #include "../Shared/read_packets.h"
-#include "../Shared/constants.h"
 #include "../Shared/packets.h"
 
 int main() {
     int control_socket;
-    u_int8_t buf[REQUEST_PACKET_LENGTH];
-    int recv_len;
+    ssize_t recv_len;
 
-    int data_socket;
     struct sockaddr_in client_addr;
     int client_length = sizeof(client_addr);
 
@@ -32,7 +32,13 @@ int main() {
     }
 
     while (1) {
-        memset(buf, 0, REQUEST_PACKET_LENGTH);
+        uint8_t * buf = malloc(DATA_PACKET_MAX_LENGTH);
+
+        pthread_t data_thread;
+        int thread_no;
+        struct request_params request_params;
+
+        memset(buf, 0, DATA_PACKET_MAX_LENGTH);
         if ((recv_len = recvfrom(
                         control_socket,
                         buf,
@@ -44,38 +50,13 @@ int main() {
             printf("Failed receiving data \n");
             continue;
         }
-        printf("received %i bytes \n", recv_len);
+        printf("received %zu bytes \n", recv_len);
 
-        printf("received guack: \n");
-        for (int i = 0; i<recv_len; i++) {
-            printf("byte %i: %i\n", i, *(buf + i));
-        }
+        request_params.buf = buf;
+        request_params.client_addr = &client_addr;
+        request_params.client_length = client_length;
 
-        int packet_type = identify_packet_type(buf);
-        printf("packet type: %i \n", packet_type);
-
-        // FIXME: only proceed if request type
-        if (packet_type != OPCODE_RRQ || packet_type != OPCODE_WRQ) {
-
-        }
-
-        if ((data_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
-            printf("couldn't build socket");
-            return 1;
-        }
-
-        ssize_t sent_bytes;
-        if ((sent_bytes = sendto(
-                    data_socket,
-                    buf,
-                    recv_len,
-                    0,
-                    (struct sockaddr *) &client_addr,
-                    (socklen_t) client_length))
-                == -1) {
-            printf("Problem sending stuff: %i \n", errno);
-		}
-        printf("Sent %zi bytes \n", sent_bytes);
+        thread_no = pthread_create(&data_thread, NULL, handle_request, (void *) &request_params);
     }
 
     close(control_socket);

@@ -3,7 +3,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#include "../Shared/constants.h"
 #include "../Shared/packets.h"
 
 int bind_control_socket(int control_socket) {

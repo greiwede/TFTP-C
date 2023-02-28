@@ -1,7 +1,8 @@
 #ifndef READ_PACKETS_H_
 #define READ_PACKETS_H_
 
-#include <stdint.h>
+#include <arpa/inet.h>
+#include <stdio.h>
 #include <sys/socket.h>
 
 int read_timeout(

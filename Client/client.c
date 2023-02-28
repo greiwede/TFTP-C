@@ -8,7 +8,6 @@
 #include "user_interaction.h"
 
 #include "../Shared/read_packets.h"
-#include "../Shared/constants.h"
 #include "../Shared/packets.h"
 
 int main() {
@@ -53,12 +52,6 @@ int main() {
                 == -1) {
             printf("Problem sending stuff: %i \n", errno);
 		}
-        printf("received guack: \n");
-        for (int i = 0; i<packet_meta->length; i++) {
-            printf("byte %i: %i\n", i, *(packet_meta->ptr + i));
-        }
-        free_request_packet(packet);
-        free_packet_meta(packet_meta);
 
         ssize_t recv_len;
         if ((recv_len = recvfrom(
@@ -73,5 +66,9 @@ int main() {
             break;
         }
         printf("received %zi bytes \n", recv_len);
+
+        // TODO: free here?
+        free_request_packet(packet);
+        free_packet_meta(packet_meta);
     }
 }

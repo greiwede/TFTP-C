@@ -3,32 +3,51 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdint.h>
+#include <errno.h>
 
-#include "../SHARED/read_packets.h"
-#include "../SHARED/packets.h"
-void * handle_request(void * ptr) {
+#include "../Shared/read_packets.h"
+#include "../Shared/packets.h"
 
-    packet_type = identify_packet_type(buf);
-    printf("packet type: %i \n", packet_type);
+void * handle_request(void * request_params) {
+    int data_socket;
+    size_t recv_len;
+    ssize_t sent_bytes;
+    int packet_type;
 
-    // FIXME: only proceed if request type
-    if (packet_type != OPCODE_RRQ || packet_type != OPCODE_WRQ) {
-    }
+    struct request_params * params = (struct request_params *) request_params;
 
     if ((data_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         printf("couldn't build socket");
-        return 1;
+        // TODO: stop thread
     }
 
-    if ((sent_bytes = sendto(
-                data_socket,
-                buf,
-                recv_len,
-                0,
-                (struct sockaddr *) &client_addr,
-                (socklen_t) client_length))
-            == -1) {
-        printf("Problem sending stuff: %i \n", errno);
+    for (int i = 0; i < 13; i++) {
+        printf("Byte %i: %i \n", i, params->buf[i]);
     }
-    printf("Sent %zi bytes \n", sent_bytes);
+
+    packet_type = identify_packet_type(params->buf);
+    printf("lol: %i \n", packet_type);
+
+    if (packet_type == OPCODE_RRQ) {
+        recv_len = 5;
+        if ((sent_bytes = sendto(
+                    data_socket,
+                    params->buf,
+                    recv_len,
+                    0,
+                    (struct sockaddr *) params->client_addr,
+                    (socklen_t) params->client_length))
+                == -1) {
+            printf("Problem sending stuff: %i \n", errno);
+            // TODO: stop thread
+        } else {
+            printf("valid");
+        }
+        printf("Sent %zi bytes \n", sent_bytes);
+    } else if (packet_type == OPCODE_WRQ) {
+    } else {
+        // FIXME: send error message
+    }
+
+    return NULL;
 }

@@ -1,15 +1,14 @@
 #include "read_packets.h"
 
-#include <sys/socket.h>
 #include <stdio.h>
+#include <sys/socket.h>
 
-#include "constants.h"
 #include "packets.h"
 #include "utils.h"
 
 int read_timeout(
         int socket_fd,
-        uint8_t buf[],
+        int8_t buf[],
         struct sockaddr_in * addr,
         int expected_block) {
 
