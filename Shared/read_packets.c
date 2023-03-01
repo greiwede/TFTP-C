@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <sys/socket.h>
+#include <string.h>
 
 #include "packets.h"
 #include "utils.h"
@@ -41,4 +42,32 @@ int identify_packet_type(uint8_t * frame) {
     } else {
         return -1;
     }
+}
+
+
+struct request_packet * convert_buf_to_request_packet(uint8_t * buf, ssize_t received_bytes) {
+    int packet_type;
+    struct request_packet * request;
+    int offset;
+    int file_name_length;
+
+    if (received_bytes < 6) {
+        return NULL;
+    }
+    packet_type = identify_packet_type(buf);
+    if (packet_type != 1 && packet_type != 2) {
+        return NULL;
+    }
+
+    offset = 0;
+    request = malloc(sizeof(struct request_packet));
+    request->opcode = packet_type;
+    offset += OPCODE_LENGTH;
+    char * strings = (char *) buf;
+    char * first_string = strtok(strings + offset, "0");
+    request->file_name = first_string;
+    offset += strlen(first_string) + ZERO_BYTE_LENGTH;
+    char * second_string = strtok(strings + offset, "0");
+    request->mode = second_string;
+    return request;
 }

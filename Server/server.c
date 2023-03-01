@@ -53,6 +53,7 @@ int main() {
         printf("received %zu bytes \n", recv_len);
 
         request_params.buf = buf;
+        request_params.buf_length = recv_len;
         request_params.client_addr = &client_addr;
         request_params.client_length = client_length;
 

@@ -12,4 +12,6 @@ int read_timeout(
         int expected_block);
 
 int identify_packet_type(uint8_t * frame);
+
+struct request_packet * convert_buf_to_request_packet(uint8_t * buf, ssize_t received_bytes);
 #endif

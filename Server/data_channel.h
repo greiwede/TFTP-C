@@ -5,6 +5,7 @@
 
 struct request_params {
     uint8_t * buf;
+    ssize_t buf_length;
     struct sockaddr_in * client_addr;
     int client_length;
 };

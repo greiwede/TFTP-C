@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 
 #include "../Shared/utils.h"
+#include "../Shared/read_packets.h"
 
 void free_packet_meta(struct packet_meta * packet) {
     free(packet->ptr);
