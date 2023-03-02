@@ -75,7 +75,7 @@ struct data_packet * convert_buf_to_data_packet(uint8_t * buf, ssize_t received_
     return data_packet;
 }
 
-// TODO: fix
+// TODO: check if the following is correct
 struct ack_packet * convert_buf_to_ack_packet(uint8_t * buf, ssize_t received_bytes) {
     int packet_type;
     struct ack_packet * ack_packet;
@@ -85,25 +85,42 @@ struct ack_packet * convert_buf_to_ack_packet(uint8_t * buf, ssize_t received_by
         return NULL;
     }
     packet_type = identify_packet_type(buf);
-    if (packet_type != 1 && packet_type != 2) {
+    if (packet_type != OPCODE_ACK) {
         return NULL;
     }
-    return NULL;
+    offset = 0;
+    ack_packet = malloc(sizeof(struct ack_packet));
+    ack_packet->opcode = packet_type;
+    offset += OPCODE_LENGTH;
+    ack_packet->block_no = uint8_buf_to_uint16(buf + offset);
+
+    return ack_packet;
 }
 
-// TODO: fix
 struct error_packet * convert_buf_to_error_packet(uint8_t * buf, ssize_t received_bytes) {
     int packet_type;
-    struct request_packet * request;
+    struct error_packet * error_packet;
     int offset;
-    int file_name_length;
+    // TODO: besseren Namen für strings
+    char * strings;
 
-    if (received_bytes < 6) {
+    if (received_bytes < ERROR_PACKET_MIN_LENGTH) {
         return NULL;
     }
     packet_type = identify_packet_type(buf);
-    if (packet_type != 1 && packet_type != 2) {
+    if (packet_type != OPCODE_ERROR) {
         return NULL;
     }
-    return NULL;
+
+    offset = 0;
+    error_packet = malloc(sizeof(struct request_packet));
+    error_packet->opcode = packet_type;
+    offset += OPCODE_LENGTH;
+    //TODO: is the following correct?
+    error_packet->error_code = uint8_buf_to_uint16(buf + offset);
+    offset += ERROR_CODE_LENGTH;
+    strings = (char *) buf;
+    error_packet->error_message = strtok(strings + offset, "0");
+
+    return error_packet;
 }
