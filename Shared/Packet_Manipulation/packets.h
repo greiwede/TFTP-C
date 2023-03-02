@@ -8,25 +8,18 @@
  */
 #define TFTP_PORT 8800
 
-/*
- *
- * FIXME: fix to correct size
- */
-#define REQUEST_PACKET_LENGTH 100
 
 /*
- * for data packet max total packet length 520
- * and max 512 of actual data and 8 byte header
+ * for packet max total packet length
  */
-#define DATA_PACKET_MAX_LENGTH 516
+#define PACKET_MAX_LENGTH 516
 
+#define REQUEST_PACKET_MIN_LENGTH 6
+#define DATA_PACKET_MIN_LENGTH 4
 #define ACK_PACKET_LENGTH 4
+#define ERROR_PACKET_MIN_LENGTH 5
 
-/*
- *
- * TODO: fix to correct size
- */
-#define ERROR_PACKET_LENGTH 4
+#define DATA_MAX_LENGTH 512
 
 typedef enum {
     OPCODE_RRQ   = 1,
@@ -98,10 +91,5 @@ request_packet * build_request_packet(uint16_t opcode, char * file_name, char * 
 data_packet * build_data_packt(uint16_t block_no, uint8_t * data, int data_length);
 ack_packet * build_ack_packet(uint16_t block_no);
 error_packet * build_error_packet(uint16_t error_code, char * error_message);
-
-packet_meta * build_request_frame(request_packet * information);
-packet_meta * build_data_frame(data_packet * information);
-packet_meta * build_ack_frame(ack_packet * information);
-packet_meta * build_error_frame(error_packet * information);
 
 #endif

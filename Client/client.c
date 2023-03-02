@@ -7,8 +7,9 @@
 
 #include "user_interaction.h"
 
-#include "../Shared/read_packets.h"
-#include "../Shared/packets.h"
+#include "../Shared/Packet_Manipulation/write_packets.h"
+#include "../Shared/Packet_Manipulation/read_packets.h"
+#include "../Shared/Packet_Manipulation/packets.h"
 
 int main() {
     struct sockaddr_in server_control_addr;
@@ -18,7 +19,7 @@ int main() {
     int server_data_length = sizeof(server_control_addr);
 
     int socket_fd;
-    int8_t client_buf[DATA_PACKET_MAX_LENGTH];
+    int8_t client_buf[PACKET_MAX_LENGTH];
     memset(client_buf, '\0', sizeof(client_buf));
 
     // make socket
@@ -53,11 +54,12 @@ int main() {
             printf("Problem sending stuff: %i \n", errno);
 		}
 
+        // TODO: continue with client
         ssize_t recv_len;
         if ((recv_len = recvfrom(
                     socket_fd,
                     client_buf,
-                    REQUEST_PACKET_LENGTH,
+                    PACKET_MAX_LENGTH,
                     0,
                     (struct sockaddr *) &server_data_addr,
                     (socklen_t *) &server_data_length))

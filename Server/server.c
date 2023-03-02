@@ -12,8 +12,8 @@
 
 #include "connection_establishment.h"
 #include "data_channel.h"
-#include "../Shared/read_packets.h"
-#include "../Shared/packets.h"
+#include "../Shared/Packet_Manipulation/read_packets.h"
+#include "../Shared/Packet_Manipulation/packets.h"
 
 int main() {
     int control_socket;
@@ -32,17 +32,17 @@ int main() {
     }
 
     while (1) {
-        uint8_t * buf = malloc(DATA_PACKET_MAX_LENGTH);
+        uint8_t * buf = malloc(PACKET_MAX_LENGTH);
 
         pthread_t data_thread;
         int thread_no;
         struct request_params request_params;
 
-        memset(buf, 0, DATA_PACKET_MAX_LENGTH);
+        memset(buf, 0, PACKET_MAX_LENGTH);
         if ((recv_len = recvfrom(
                         control_socket,
                         buf,
-                        REQUEST_PACKET_LENGTH,
+                        PACKET_MAX_LENGTH,
                         0,
                         (struct sockaddr *) &client_addr,
                         (socklen_t *) &client_length))

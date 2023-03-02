@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../Shared/packets.h"
+#include "../Shared/Packet_Manipulation/packets.h"
 
 uint16_t inquire_request_type() {
     unsigned char requested_mode;

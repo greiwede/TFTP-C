@@ -6,8 +6,9 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include "../Shared/read_packets.h"
-#include "../Shared/packets.h"
+#include "../Shared/Packet_Manipulation/read_packets.h"
+#include "../Shared/Packet_Manipulation/packets.h"
+#include "../Shared/Data_Flow/send_data.h"
 #include "data_channel.h"
 
 void * handle_request(void * request_params) {
@@ -28,35 +29,10 @@ void * handle_request(void * request_params) {
     packet = convert_buf_to_request_packet(params->buf, params->buf_length);
 
     if (packet->opcode == OPCODE_RRQ) {
-        ssize_t read_bytes;
-        FILE * fd;
-
-        if ((fd = fopen(packet->file_name, "rb")) == NULL) {
-            // send error
-            pthread_exit(NULL);
-        }
-        do {
-            // int read_bytes = read(fd, );
-            // read file -> 512 bytes or rest
-            // pack into buffer
-            // send buffer
-            // receive ack
-        } while (read_bytes >= 512);
-
-        //recv_len = 5;
-        //if ((sent_bytes = sendto(
-        //            data_socket,
-        //            params->buf,
-        //            recv_len,
-        //            0,
-        //            (struct sockaddr *) params->client_addr,
-        //            (socklen_t) params->client_length))
-        //        == -1) {
-        //    printf("Problem sending stuff: %i \n", errno);
-        //    pthread_exit(NULL);
-        //}
-        //printf("Sent %zi bytes \n", sent_bytes);
+        send_data(packet, &data_socket, params->client_addr, params->client_length);
+        // TODO: send_data(file, socket, address)
     } else if (packet->opcode == OPCODE_WRQ) {
+        // TODO: receive_data(file, socket, address)
     } else {
         // FIXME: send error message
     }
