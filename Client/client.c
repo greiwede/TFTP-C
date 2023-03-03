@@ -9,6 +9,7 @@
 
 #include "../Shared/Packet_Manipulation/write_packets.h"
 #include "../Shared/Packet_Manipulation/read_packets.h"
+#include "../Shared/Data_Flow/receive_data.h"
 #include "../Shared/Packet_Manipulation/packets.h"
 
 int main() {
@@ -27,6 +28,7 @@ int main() {
         printf("couldn't build socket");
         return 1;
     }
+    set_receiving_timeout(socket_fd);
 
     server_control_addr.sin_family = AF_INET;
     server_control_addr.sin_port = htons(TFTP_PORT);

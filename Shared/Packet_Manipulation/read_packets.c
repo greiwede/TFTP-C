@@ -75,7 +75,6 @@ struct data_packet * convert_buf_to_data_packet(uint8_t * buf, ssize_t received_
     return data_packet;
 }
 
-// TODO: check if the following is correct
 struct ack_packet * convert_buf_to_ack_packet(uint8_t * buf, ssize_t received_bytes) {
     int packet_type;
     struct ack_packet * ack_packet;
@@ -88,6 +87,7 @@ struct ack_packet * convert_buf_to_ack_packet(uint8_t * buf, ssize_t received_by
     if (packet_type != OPCODE_ACK) {
         return NULL;
     }
+
     offset = 0;
     ack_packet = malloc(sizeof(struct ack_packet));
     ack_packet->opcode = packet_type;
@@ -101,8 +101,6 @@ struct error_packet * convert_buf_to_error_packet(uint8_t * buf, ssize_t receive
     int packet_type;
     struct error_packet * error_packet;
     int offset;
-    // TODO: besseren Namen für strings
-    char * strings;
 
     if (received_bytes < ERROR_PACKET_MIN_LENGTH) {
         return NULL;
@@ -116,11 +114,9 @@ struct error_packet * convert_buf_to_error_packet(uint8_t * buf, ssize_t receive
     error_packet = malloc(sizeof(struct request_packet));
     error_packet->opcode = packet_type;
     offset += OPCODE_LENGTH;
-    //TODO: is the following correct?
     error_packet->error_code = uint8_buf_to_uint16(buf + offset);
     offset += ERROR_CODE_LENGTH;
-    strings = (char *) buf;
-    error_packet->error_message = strtok(strings + offset, "0");
+    error_packet->error_message = strtok((char *) buf + offset, "0");
 
     return error_packet;
 }

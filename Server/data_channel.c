@@ -9,13 +9,11 @@
 #include "../Shared/Packet_Manipulation/read_packets.h"
 #include "../Shared/Packet_Manipulation/packets.h"
 #include "../Shared/Data_Flow/send_data.h"
+#include "../Shared/Data_Flow/receive_data.h"
 #include "data_channel.h"
 
 void * handle_request(void * request_params) {
     int data_socket;
-    size_t recv_len;
-    ssize_t sent_bytes;
-
     struct request_params * params;
     struct request_packet * packet;
 
@@ -26,16 +24,17 @@ void * handle_request(void * request_params) {
         pthread_exit(NULL);
     }
 
+    set_receiving_timeout(data_socket);
+
     packet = convert_buf_to_request_packet(params->buf, params->buf_length);
 
     if (packet->opcode == OPCODE_RRQ) {
-        send_data(packet, &data_socket, params->client_addr, params->client_length);
-        // TODO: send_data(file, socket, address)
+        send_file(packet, &data_socket, params->client_addr, params->client_length);
     } else if (packet->opcode == OPCODE_WRQ) {
         // TODO: receive_data(file, socket, address)
     } else {
         // FIXME: send error message
     }
-
+    pthread_exit(NULL);
     return NULL;
 }
