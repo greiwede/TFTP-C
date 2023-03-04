@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "../utils.h"
 
@@ -26,6 +27,7 @@ packet_meta * build_request_frame(request_packet * information) {
     memcpy(meta->ptr + offset, information->mode, mode_length);
     offset += mode_length;
     memset(meta->ptr + offset, 0, ZERO_BYTE_LENGTH);
+
     return meta;
 }
 

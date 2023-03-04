@@ -18,40 +18,33 @@ void send_file(
         int address_length) {
     FILE * fd;
     ssize_t bytes_read;
-    struct data_packet data_packet;
+    struct data_packet * data_packet;
     uint8_t * data;
     uint8_t * buf;
     uint16_t block_number;
+
+    printf("socket after handing over: %i \n", *socket);
 
     if ((fd = fopen(request->file_name, "rb")) == NULL) {
         // TODO: send error
         return;
     }
-    printf("ich öffne file: %s \n", request->file_name);
 
     data = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
     buf = malloc(sizeof(uint8_t) * PACKET_MAX_LENGTH);
-    data_packet.data = data;
     block_number = 1;
     while ((bytes_read = fread(data, 1, DATA_MAX_LENGTH, fd)) == DATA_MAX_LENGTH) {
-        printf("ich habe viel gelesen \n");
-        for (int i = 0; i < bytes_read; i++) {
-            printf("Byte %i: %i \n", i, data[i]);
-        }
-        if (send_packet(data, &data_packet, block_number, socket, buf, address, address_length)
+        data_packet = build_data_packet(block_number, data, bytes_read);
+        if (send_packet(data, data_packet, block_number, socket, buf, address, address_length)
                 == -1) {
             return;
         }
+        printf("block no %i\n", block_number);
         block_number++;
     }
     fclose(fd);
     // TODO: how does fread act if file already finished?
-    printf("ich habe gelesen \n");
-    for (int i = 0; i < bytes_read; i++) {
-        printf("Byte %i: %i \n", i, data[i]);
-    }
-    // bytes_read = fread(data, 1, DATA_MAX_LENGTH, fd);
-    if (send_packet(data, &data_packet, block_number, socket, buf, address, address_length)
+    if (send_packet(data, data_packet, block_number, socket, buf, address, address_length)
             == -1) {
         return;
     }
@@ -65,8 +58,6 @@ int send_packet(
         uint8_t * buf,
         struct sockaddr_in * address,
         int address_length) {
-
-    printf("sending packet \n");
 
     struct packet_meta * packet_meta;
     struct ack_packet * ack_packet;
@@ -82,7 +73,6 @@ int send_packet(
 
     times_resent = 0;
     do {
-        printf("sending buffer");
         if ((sent_bytes = send_buffer(
                         socket,
                         packet_meta->ptr,
@@ -90,11 +80,10 @@ int send_packet(
                         address,
                         address_length))
                 == -1) {
-            printf("Problem sending data: %i \n", errno);
+            printf("Problem sending data from inside send packet: %i \n", errno);
             return sent_bytes;
         }
 
-        printf("receiving ack \n");
         recv_bytes = receive_buffer(socket, buf, address, address_length);
         printf("received %zu bytes \n", recv_bytes);
 
@@ -116,15 +105,12 @@ int send_packet(
 int send_buffer(
         int * socket,
         uint8_t * buf,
-        size_t buf_length,
+        int buf_length,
         struct sockaddr_in * address,
         int address_length) {
     size_t sent_bytes;
 
-    printf("ich schicke das \n");
-    for (int i = 0; i < buf_length; i++) {
-        printf("Byte %i: %i \n", i, buf[i]);
-    }
+    printf("how long is my puffer: %i \n", buf_length);
     if ((sent_bytes = sendto(
                 *socket,
                 buf,

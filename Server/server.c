@@ -1,5 +1,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -22,6 +23,7 @@ int main() {
     struct sockaddr_in client_addr;
     int client_length = sizeof(client_addr);
 
+
     if ((control_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         printf("couldn't create socket \n");
         return -1;
@@ -32,6 +34,7 @@ int main() {
     }
 
     while (1) {
+        printf("you do not belong here \n");
         uint8_t * buf = malloc(PACKET_MAX_LENGTH);
 
         pthread_t data_thread;
@@ -39,6 +42,7 @@ int main() {
         struct request_params request_params;
 
         memset(buf, 0, PACKET_MAX_LENGTH);
+        // FIXME: how to make blocking
         if ((recv_len = recvfrom(
                         control_socket,
                         buf,

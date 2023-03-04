@@ -35,6 +35,7 @@ int main() {
     server_control_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     while (1) {
+        printf("you do not belong here \n");
         char request_type = inquire_request_type();
         char * file_name = inquire_file_name();
 

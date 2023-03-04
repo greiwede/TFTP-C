@@ -24,7 +24,7 @@ int send_packet(
 int send_buffer(
         int * socket,
         uint8_t * buf,
-        size_t buf_length,
+        int buf_length,
         struct sockaddr_in * address,
         int address_length);
 

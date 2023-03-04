@@ -88,7 +88,7 @@ void free_ack_packet(struct ack_packet * packet);
 void free_error_packet(struct error_packet * packet);
 
 request_packet * build_request_packet(uint16_t opcode, char * file_name, char * mode);
-data_packet * build_data_packt(uint16_t block_no, uint8_t * data, int data_length);
+data_packet * build_data_packet(uint16_t block_no, uint8_t * data, int data_length);
 ack_packet * build_ack_packet(uint16_t block_no);
 error_packet * build_error_packet(uint16_t error_code, char * error_message);
 

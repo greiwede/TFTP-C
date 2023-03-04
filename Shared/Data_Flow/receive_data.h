@@ -17,7 +17,7 @@ void receive_file(
         int address_length);
 
 struct data_packet * receive_packet(
-        uint8_t block_number,
+        uint16_t block_number,
         int * socket,
         uint8_t * buf,
         struct sockaddr_in * address,
