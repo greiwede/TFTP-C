@@ -21,13 +21,13 @@ struct data_packet * receive_packet(
         int * socket,
         uint8_t * buf,
         struct sockaddr_in * address,
-        socklen_t address_length);
+        int address_length);
 
 int receive_buffer(
         int * socket,
         uint8_t * buf,
-        struct sockaddr * address,
-        socklen_t length);
+        struct sockaddr_in * address,
+        int length);
 
 int set_receiving_timeout(int socket_fd);
 

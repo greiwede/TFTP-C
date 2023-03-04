@@ -10,6 +10,7 @@
 #include "../Shared/Packet_Manipulation/write_packets.h"
 #include "../Shared/Packet_Manipulation/read_packets.h"
 #include "../Shared/Data_Flow/receive_data.h"
+#include "../Shared/Data_Flow/send_data.h"
 #include "../Shared/Packet_Manipulation/packets.h"
 
 int main() {
@@ -23,7 +24,6 @@ int main() {
     int8_t client_buf[PACKET_MAX_LENGTH];
     memset(client_buf, '\0', sizeof(client_buf));
 
-    // make socket
     if ((socket_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         printf("couldn't build socket");
         return 1;
@@ -56,20 +56,11 @@ int main() {
             printf("Problem sending stuff: %i \n", errno);
 		}
 
-        // TODO: continue with client
-        ssize_t recv_len;
-        if ((recv_len = recvfrom(
-                    socket_fd,
-                    client_buf,
-                    PACKET_MAX_LENGTH,
-                    0,
-                    (struct sockaddr *) &server_data_addr,
-                    (socklen_t *) &server_data_length))
-                == -1) {
-            printf("Failed receiving data \n");
-            break;
+        if (packet->opcode == OPCODE_RRQ) {
+            receive_file(packet, &socket_fd, &server_data_addr, server_data_length);
+        } else {
+            send_file(packet, &socket_fd, &server_data_addr, server_data_length);
         }
-        printf("received %zi bytes \n", recv_len);
 
         // TODO: free here?
         free_request_packet(packet);

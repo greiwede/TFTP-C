@@ -19,13 +19,13 @@ int send_packet(
         int * socket,
         uint8_t * buf,
         struct sockaddr_in * address,
-        socklen_t address_length);
+        int address_length);
 
 int send_buffer(
         int * socket,
         uint8_t * buf,
         size_t buf_length,
         struct sockaddr_in * address,
-        socklen_t address_length);
+        int address_length);
 
 #endif

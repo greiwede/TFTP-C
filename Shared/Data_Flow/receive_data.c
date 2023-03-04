@@ -1,5 +1,4 @@
 #include "receive_data.h"
-
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <stdio.h>
@@ -23,7 +22,10 @@ void receive_file(
     uint8_t * buf;
     uint16_t block_number;
 
-    if ((fd = fopen(request->file_name, "wb")) == NULL) {
+    // FIXME: opening file if does not exist and directory problem
+    // if ((fd = fopen(request->file_name, "wb")) == NULL) {
+    char * a = "ptest.txt";
+    if ((fd = fopen(a, "wb")) == NULL) {
         // TODO: send error
         return;
     }
@@ -38,6 +40,7 @@ void receive_file(
         fwrite(data_packet->data, 1, data_packet->data_length, fd);
         block_number++;
     } while (data_packet->data_length == 512);
+    fclose(fd);
 }
 
 struct data_packet * receive_packet(
@@ -45,7 +48,7 @@ struct data_packet * receive_packet(
         int * socket,
         uint8_t * buf,
         struct sockaddr_in * address,
-        socklen_t address_length) {
+        int address_length) {
 
     struct packet_meta * packet_meta;
     struct ack_packet * ack_packet;
@@ -58,7 +61,7 @@ struct data_packet * receive_packet(
     packet_meta = build_ack_frame(ack_packet);
     times_resent = 0;
     do {
-        recv_bytes = receive_buffer(socket, buf, (struct sockaddr *) address, address_length);
+        recv_bytes = receive_buffer(socket, buf, address, address_length);
         printf("received %zu bytes \n", recv_bytes);
         if (recv_bytes < 0) {
             continue;
@@ -89,8 +92,8 @@ struct data_packet * receive_packet(
 int receive_buffer(
         int * socket,
         uint8_t * buf,
-        struct sockaddr * address,
-        socklen_t length) {
+        struct sockaddr_in * address,
+        int length) {
     ssize_t recv_bytes;
 
     // TODO: what happens after timeout?
