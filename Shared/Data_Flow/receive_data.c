@@ -49,6 +49,7 @@ struct data_packet * receive_packet(
         uint8_t * buf,
         struct sockaddr_in * address,
         int address_length) {
+    printf("receiving packet \n");
 
     struct packet_meta * packet_meta;
     struct ack_packet * ack_packet;
@@ -61,6 +62,7 @@ struct data_packet * receive_packet(
     packet_meta = build_ack_frame(ack_packet);
     times_resent = 0;
     do {
+        printf("receive_buffer");
         recv_bytes = receive_buffer(socket, buf, address, address_length);
         printf("received %zu bytes \n", recv_bytes);
         if (recv_bytes < 0) {
@@ -68,6 +70,7 @@ struct data_packet * receive_packet(
         }
         data_packet = convert_buf_to_data_packet(buf, recv_bytes);
 
+        printf("sending ack");
         if ((sent_bytes = send_buffer(
                         socket,
                         packet_meta->ptr,
