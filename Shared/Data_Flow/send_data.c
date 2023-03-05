@@ -39,14 +39,18 @@ void send_file(
             return;
         }
         printf("block no %i\n", block_number);
+        printf("bytes read %zu \n", bytes_read);
         block_number++;
     }
     fclose(fd);
-    // TODO: how does fread act if file already finished?
+    data_packet = build_data_packet(block_number, data, bytes_read);
     if (send_packet(data, data_packet, block_number, socket, buf, address, address_length)
             == -1) {
         return;
     }
+    printf("data Packet size: %i \n", data_packet->data_length);
+    printf("bytes read %zu \n", bytes_read);
+    printf("file sent \n");
 }
 
 int send_packet(
@@ -71,7 +75,6 @@ int send_packet(
 
     times_resent = 0;
     do {
-        printf("Meta length: %i \n", packet_meta->length);
         if ((sent_bytes = send_buffer(
                         socket,
                         packet_meta->ptr,
@@ -109,7 +112,6 @@ int send_buffer(
         int address_length) {
     size_t sent_bytes;
 
-    printf("how long is my puffer: %i \n", buf_length);
     if ((sent_bytes = sendto(
                 *socket,
                 buf,

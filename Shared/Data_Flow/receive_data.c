@@ -39,8 +39,10 @@ void receive_file(
         // TODO: handle returned null
         fwrite(data_packet->data, 1, data_packet->data_length, fd);
         block_number++;
+        printf("Received data length: %i \n", data_packet->data_length);
     } while (data_packet->data_length == 512);
     fclose(fd);
+    printf("file received \n");
 }
 
 struct data_packet * receive_packet(
@@ -70,6 +72,7 @@ struct data_packet * receive_packet(
         }
         data_packet = convert_buf_to_data_packet(buf, recv_bytes);
 
+        // FIXME: receive_buffer return sszize_t, sent_bytes is size_t --> Castingfehler
         if ((sent_bytes = send_buffer(
                         socket,
                         packet_meta->ptr,
@@ -100,7 +103,6 @@ int receive_buffer(
 
     // TODO: what happens after timeout?
     memset(buf, 0, PACKET_MAX_LENGTH);
-    printf("This is where I receive \n");
     if ((recv_bytes = recvfrom(
                     *socket,
                     buf,

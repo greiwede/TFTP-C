@@ -60,6 +60,8 @@ int main() {
         if (packet->opcode == OPCODE_RRQ) {
             receive_file(packet, &socket_fd, &server_data_addr, server_data_length);
         } else {
+            // FIXME: receive ack #0
+            // FIXME: filename same as for server
             send_file(packet, &socket_fd, &server_data_addr, server_data_length);
         }
 

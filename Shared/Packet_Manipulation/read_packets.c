@@ -69,6 +69,7 @@ struct data_packet * convert_buf_to_data_packet(uint8_t * buf, ssize_t received_
     data_packet->block_no = uint8_buf_to_uint16(buf + offset);
     offset += BLOCK_NO_LENGTH;
     data_length = received_bytes - offset;
+    data_packet->data_length = data_length;
     data_packet->data = malloc(sizeof(uint8_t) * data_length);
     memcpy(data_packet->data, buf + offset, data_length);
 

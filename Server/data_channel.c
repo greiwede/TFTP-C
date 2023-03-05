@@ -33,7 +33,8 @@ void * handle_request(void * request_params) {
     if (packet->opcode == OPCODE_RRQ) {
         send_file(packet, &data_socket, params->client_addr, params->client_length);
     } else if (packet->opcode == OPCODE_WRQ) {
-        // TODO: receive_data(file, socket, address)
+        // send ack #0
+        receive_file(packet, &data_socket, params->client_addr, params->client_length);
     } else {
         // FIXME: send error message
     }
