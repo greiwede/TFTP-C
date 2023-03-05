@@ -100,6 +100,7 @@ int receive_buffer(
 
     // TODO: what happens after timeout?
     memset(buf, 0, PACKET_MAX_LENGTH);
+    printf("This is where I receive \n");
     if ((recv_bytes = recvfrom(
                     *socket,
                     buf,

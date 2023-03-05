@@ -17,7 +17,7 @@ int send_packet(
         struct data_packet * data_packet,
         uint16_t block_number,
         int * socket,
-        uint8_t * buf,
+        uint8_t * ack_buf,
         struct sockaddr_in * address,
         int address_length);
 

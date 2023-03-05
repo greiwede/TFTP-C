@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include "../Shared/Packet_Manipulation/read_packets.h"
 #include "../Shared/Packet_Manipulation/packets.h"
@@ -23,8 +24,9 @@ void * handle_request(void * request_params) {
         printf("couldn't build socket");
         pthread_exit(NULL);
     }
-
-    set_receiving_timeout(data_socket);
+    printf("data socket: %i \n", data_socket);
+    // TODO: wieder aktivieren
+    // set_receiving_timeout(data_socket);
 
     packet = convert_buf_to_request_packet(params->buf, params->buf_length);
 

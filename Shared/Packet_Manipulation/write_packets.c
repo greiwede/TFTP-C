@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <arpa/inet.h>
 
 #include "../utils.h"
 
@@ -34,7 +35,7 @@ packet_meta * build_request_frame(request_packet * information) {
 packet_meta * build_data_frame(data_packet * information) {
     struct packet_meta * meta = malloc(sizeof(struct packet_meta));
     meta->length = OPCODE_LENGTH + BLOCK_NO_LENGTH + information->data_length;
-    meta->ptr = malloc(meta->length);
+    meta->ptr = malloc(sizeof(uint8_t) * meta->length);
 
     int offset = 0;
     uint16_to_uint8_buf(htons(information->opcode), meta->ptr);

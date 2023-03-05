@@ -23,7 +23,6 @@ void send_file(
     uint8_t * buf;
     uint16_t block_number;
 
-    printf("socket after handing over: %i \n", *socket);
 
     if ((fd = fopen(request->file_name, "rb")) == NULL) {
         // TODO: send error
@@ -55,7 +54,7 @@ int send_packet(
         struct data_packet * data_packet,
         uint16_t block_number,
         int * socket,
-        uint8_t * buf,
+        uint8_t * ack_buf,
         struct sockaddr_in * address,
         int address_length) {
 
@@ -65,7 +64,6 @@ int send_packet(
     ssize_t recv_bytes;
     int times_resent;
 
-
     data_packet->opcode = OPCODE_DATA;
     data_packet->block_no = block_number;
 
@@ -73,6 +71,7 @@ int send_packet(
 
     times_resent = 0;
     do {
+        printf("Meta length: %i \n", packet_meta->length);
         if ((sent_bytes = send_buffer(
                         socket,
                         packet_meta->ptr,
@@ -84,10 +83,10 @@ int send_packet(
             return sent_bytes;
         }
 
-        recv_bytes = receive_buffer(socket, buf, address, address_length);
+        recv_bytes = receive_buffer(socket, ack_buf, address, address_length);
         printf("received %zu bytes \n", recv_bytes);
 
-        if ((ack_packet = convert_buf_to_ack_packet(buf, recv_bytes)) == NULL) {
+        if ((ack_packet = convert_buf_to_ack_packet(ack_buf, recv_bytes)) == NULL) {
             printf("Not an ACK packet \n");
             // TODO: send error
             return -1;
@@ -116,7 +115,7 @@ int send_buffer(
                 buf,
                 buf_length,
                 0,
-                (struct sockaddr *) &address,
+                (struct sockaddr *) address,
                 (socklen_t) address_length))
             == -1) {
         printf("Problem sending data: %i \n", errno);

@@ -20,21 +20,20 @@ int main() {
     int control_socket;
     ssize_t recv_len;
 
-    struct sockaddr_in client_addr;
-    int client_length = sizeof(client_addr);
-
 
     if ((control_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         printf("couldn't create socket \n");
         return -1;
     }
+    printf("control socket: %i \n", control_socket);
 
     if (bind_control_socket(control_socket) == -1) {
         return -1;
     }
 
     while (1) {
-        printf("you do not belong here \n");
+        struct sockaddr_in * client_addr = malloc(sizeof(struct sockaddr_in));
+        int client_length = sizeof(*client_addr);
         uint8_t * buf = malloc(PACKET_MAX_LENGTH);
 
         pthread_t data_thread;
@@ -48,7 +47,7 @@ int main() {
                         buf,
                         PACKET_MAX_LENGTH,
                         0,
-                        (struct sockaddr *) &client_addr,
+                        (struct sockaddr *) client_addr,
                         (socklen_t *) &client_length))
                     == -1) {
             printf("Failed receiving data \n");
@@ -58,7 +57,7 @@ int main() {
 
         request_params.buf = buf;
         request_params.buf_length = recv_len;
-        request_params.client_addr = &client_addr;
+        request_params.client_addr = client_addr;
         request_params.client_length = client_length;
 
         thread_no = pthread_create(&data_thread, NULL, handle_request, (void *) &request_params);
