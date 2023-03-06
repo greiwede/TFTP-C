@@ -20,7 +20,6 @@ int main() {
     int control_socket;
     ssize_t recv_len;
 
-
     if ((control_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         printf("couldn't create socket \n");
         return -1;

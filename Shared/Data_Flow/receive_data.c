@@ -22,10 +22,7 @@ void receive_file(
     uint8_t * buf;
     uint16_t block_number;
 
-    // FIXME: opening file if does not exist and directory problem
-    // if ((fd = fopen(request->file_name, "wb")) == NULL) {
-    char * a = "ptest.txt";
-    if ((fd = fopen(a, "wb")) == NULL) {
+    if ((fd = fopen(request->file_name, "wb")) == NULL) {
         // TODO: send error
         return;
     }
