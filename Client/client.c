@@ -16,20 +16,15 @@
 int main() {
     struct sockaddr_in server_control_addr;
     int server_control_length = sizeof(server_control_addr);
-
     struct sockaddr_in server_data_addr;
     int server_data_length = sizeof(server_control_addr);
-
     int socket_fd;
-    int8_t client_buf[PACKET_MAX_LENGTH];
-    memset(client_buf, '\0', sizeof(client_buf));
 
     if ((socket_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         printf("couldn't build socket");
         return 1;
     }
-    // TODO: wieder akitivieren
-    // set_receiving_timeout(socket_fd);
+    set_receiving_timeout(socket_fd);
 
     server_control_addr.sin_family = AF_INET;
     server_control_addr.sin_port = htons(TFTP_PORT);
@@ -60,9 +55,24 @@ int main() {
         if (packet->opcode == OPCODE_RRQ) {
             receive_file(packet, &socket_fd, &server_data_addr, server_data_length);
         } else {
-            // FIXME: receive ack #0
-            // FIXME: filename same as for server
-            send_file(packet, &socket_fd, &server_data_addr, server_data_length);
+            uint8_t * buf = malloc(sizeof(uint8_t) * ACK_PACKET_LENGTH);
+            ssize_t received_bytes;
+            if ((received_bytes = receive_buffer(
+                            &socket_fd,
+                            buf,
+                            ACK_PACKET_LENGTH,
+                            &server_data_addr,
+                            server_data_length))
+                    == -1) {
+                printf("Couldn't establish connection to server \n");
+            }
+            printf("received bytes: %zu \n", received_bytes);
+            struct ack_packet * ack = convert_buf_to_ack_packet(buf, received_bytes);
+            if (ack != NULL && ack->block_no == 0) {
+                send_file(packet, &socket_fd, &server_data_addr, server_data_length);
+            }
+            free_ack_packet(ack);
+            free(buf);
         }
 
         // TODO: free here?

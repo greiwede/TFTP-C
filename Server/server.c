@@ -41,6 +41,7 @@ int main() {
 
         memset(buf, 0, PACKET_MAX_LENGTH);
         // FIXME: how to make blocking
+        // TODO: durch receive_buffer ersetzen
         if ((recv_len = recvfrom(
                         control_socket,
                         buf,

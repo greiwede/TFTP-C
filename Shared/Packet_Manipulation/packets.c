@@ -34,6 +34,8 @@ void free_error_packet(struct error_packet * packet) {
     free(packet);
 }
 
+// FIXME: add explicit casting when malloc
+
 // TODO: do we need structs for sending packet?
 // frame -> struct - entpacken
 // values -> frame - einpacken

@@ -36,7 +36,7 @@ struct request_packet * convert_buf_to_request_packet(uint8_t * buf, ssize_t rec
     }
 
     offset = 0;
-    request = malloc(sizeof(struct request_packet));
+    request = (struct request_packet *) malloc(sizeof(struct request_packet));
     request->opcode = packet_type;
     offset += OPCODE_LENGTH;
     strings = (char *) buf;
@@ -63,7 +63,7 @@ struct data_packet * convert_buf_to_data_packet(uint8_t * buf, ssize_t received_
     }
 
     offset = 0;
-    data_packet = malloc(sizeof(struct data_packet));
+    data_packet = (struct data_packet *) malloc(sizeof(struct data_packet));
     data_packet->opcode = packet_type;
     offset += OPCODE_LENGTH;
     data_packet->block_no = uint8_buf_to_uint16(buf + offset);
@@ -90,7 +90,7 @@ struct ack_packet * convert_buf_to_ack_packet(uint8_t * buf, ssize_t received_by
     }
 
     offset = 0;
-    ack_packet = malloc(sizeof(struct ack_packet));
+    ack_packet = (struct ack_packet *) malloc(sizeof(struct ack_packet));
     ack_packet->opcode = packet_type;
     offset += OPCODE_LENGTH;
     ack_packet->block_no = uint8_buf_to_uint16(buf + offset);
@@ -112,7 +112,7 @@ struct error_packet * convert_buf_to_error_packet(uint8_t * buf, ssize_t receive
     }
 
     offset = 0;
-    error_packet = malloc(sizeof(struct request_packet));
+    error_packet = (struct error_packet *) malloc(sizeof(struct error_packet));
     error_packet->opcode = packet_type;
     offset += OPCODE_LENGTH;
     error_packet->error_code = uint8_buf_to_uint16(buf + offset);

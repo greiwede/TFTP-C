@@ -45,7 +45,7 @@ void receive_file(
 struct data_packet * receive_packet(
         uint16_t block_number,
         int * socket,
-        uint8_t * buf,
+        uint8_t * data_buf,
         struct sockaddr_in * address,
         int address_length) {
 
@@ -62,12 +62,17 @@ struct data_packet * receive_packet(
     times_resent = 0;
     do {
         recv_bytes = 0;
-        recv_bytes = receive_buffer(socket, buf, address, address_length);
-        printf("received %zu bytes \n", recv_bytes);
-        if (recv_bytes < 0) {
+        if((recv_bytes = receive_buffer(
+                        socket,
+                        data_buf,
+                        PACKET_MAX_LENGTH,
+                        address,
+                        address_length))
+                == -1) {
+            printf("Failed receiving bytes: %i \n", errno);
             continue;
         }
-        data_packet = convert_buf_to_data_packet(buf, recv_bytes);
+        data_packet = convert_buf_to_data_packet(data_buf, recv_bytes);
 
         // FIXME: receive_buffer return sszize_t, sent_bytes is size_t --> Castingfehler
         if ((sent_bytes = send_buffer(
@@ -94,16 +99,17 @@ struct data_packet * receive_packet(
 int receive_buffer(
         int * socket,
         uint8_t * buf,
+        int buf_length,
         struct sockaddr_in * address,
         int length) {
     ssize_t recv_bytes;
 
     // TODO: what happens after timeout?
-    memset(buf, 0, PACKET_MAX_LENGTH);
+    memset(buf, 0, buf_length);
     if ((recv_bytes = recvfrom(
                     *socket,
                     buf,
-                    PACKET_MAX_LENGTH,
+                    buf_length,
                     0,
                     (struct sockaddr *) address,
                     (socklen_t *) &length))

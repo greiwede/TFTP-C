@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 
 #include "../Packet_Manipulation/packets.h"
+#include "../utils.h"
 
 #define TIMEOUT_SECONDS 5
 #define TIMEOUT_MICRO_SECONDS 0
@@ -19,13 +20,14 @@ void receive_file(
 struct data_packet * receive_packet(
         uint16_t block_number,
         int * socket,
-        uint8_t * buf,
+        uint8_t * data_buf,
         struct sockaddr_in * address,
         int address_length);
 
 int receive_buffer(
         int * socket,
         uint8_t * buf,
+        int buf_length,
         struct sockaddr_in * address,
         int length);
 

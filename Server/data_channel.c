@@ -7,11 +7,12 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include "../Shared/Packet_Manipulation/read_packets.h"
+#include "data_channel.h"
 #include "../Shared/Packet_Manipulation/packets.h"
+#include "../Shared/Packet_Manipulation/read_packets.h"
+#include "../Shared/Packet_Manipulation/write_packets.h"
 #include "../Shared/Data_Flow/send_data.h"
 #include "../Shared/Data_Flow/receive_data.h"
-#include "data_channel.h"
 
 void * handle_request(void * request_params) {
     int data_socket;
@@ -25,16 +26,27 @@ void * handle_request(void * request_params) {
         pthread_exit(NULL);
     }
     printf("data socket: %i \n", data_socket);
-    // TODO: wieder aktivieren
-    // set_receiving_timeout(data_socket);
+    set_receiving_timeout(data_socket);
 
     packet = convert_buf_to_request_packet(params->buf, params->buf_length);
 
     if (packet->opcode == OPCODE_RRQ) {
         send_file(packet, &data_socket, params->client_addr, params->client_length);
     } else if (packet->opcode == OPCODE_WRQ) {
-        // send ack #0
-        receive_file(packet, &data_socket, params->client_addr, params->client_length);
+        struct ack_packet * first_ack = build_ack_packet(0);
+        struct packet_meta * meta = build_ack_frame(first_ack);
+        int sent_bytes;
+        if ((sent_bytes = send_buffer(
+                        &data_socket,
+                        meta->ptr,
+                        meta->length,
+                        params->client_addr,
+                        params->client_length))
+                == -1) {
+            printf("data connection coouldn't be established %i \n", errno);
+        } else {
+            receive_file(packet, &data_socket, params->client_addr, params->client_length);
+        }
     } else {
         // FIXME: send error message
     }
