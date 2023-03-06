@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <string.h>
 
 #include "../Packet_Manipulation/packets.h"
 #include "../Packet_Manipulation/write_packets.h"
@@ -23,11 +24,19 @@ void send_file(
     uint8_t * buf;
     uint16_t block_number;
 
-
-    if ((fd = fopen(request->file_name, "rb")) == NULL) {
-        // TODO: send error
-        return;
+    // FIXME:
+    if (strcmp(request->mode, MODE_NETASCII)) {
+        if ((fd = fopen(request->file_name, "r")) == NULL) {
+            // TODO: send error
+            return;
+        }
+    } else {
+        if ((fd = fopen(request->file_name, "rb")) == NULL) {
+            // TODO: send error
+            return;
+        }
     }
+
 
     data = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
     buf = malloc(sizeof(uint8_t) * PACKET_MAX_LENGTH);

@@ -33,6 +33,7 @@ int main() {
     while (1) {
         char request_type = inquire_request_type();
         char * file_name = inquire_file_name();
+        // 	scanf("%1023s", mode);
 
         struct request_packet * packet = build_request_packet(
                 request_type,
