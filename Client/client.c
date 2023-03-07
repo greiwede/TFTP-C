@@ -31,9 +31,8 @@ int main() {
     server_control_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     while (1) {
-        char request_type = inquire_request_type();
-        char * file_name = inquire_file_name();
-        // 	scanf("%1023s", mode);
+        uint16_t request_type = inquire_request_type();
+        char * file_name = inquire_file_name(request_type);
 
         struct request_packet * packet = build_request_packet(
                 request_type,
