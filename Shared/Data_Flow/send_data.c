@@ -12,11 +12,11 @@
 #include "../Packet_Manipulation/read_packets.h"
 #include "receive_data.h"
 
+//TODO: warum muss hier nicht utils importiert werden?
+
 void send_file(
         struct request_packet * request,
-        int * socket,
-        struct sockaddr_in * address,
-        int address_length) {
+        struct socket_meta * socket_information) {
     FILE * fd;
     ssize_t bytes_read;
     struct data_packet * data_packet;
@@ -43,7 +43,7 @@ void send_file(
     block_number = 1;
     while ((bytes_read = fread(data, 1, DATA_MAX_LENGTH, fd)) == DATA_MAX_LENGTH) {
         data_packet = build_data_packet(block_number, data, bytes_read);
-        if (send_packet(data, data_packet, block_number, socket, buf, address, address_length)
+        if (send_packet(data, data_packet, block_number, socket_information, buf)
                 == -1) {
             return;
         }
@@ -53,7 +53,7 @@ void send_file(
     }
     fclose(fd);
     data_packet = build_data_packet(block_number, data, bytes_read);
-    if (send_packet(data, data_packet, block_number, socket, buf, address, address_length)
+    if (send_packet(data, data_packet, block_number, socket_information, buf)
             == -1) {
         return;
     }
@@ -66,10 +66,8 @@ int send_packet(
         uint8_t * data,
         struct data_packet * data_packet,
         uint16_t block_number,
-        int * socket,
-        uint8_t * ack_buf,
-        struct sockaddr_in * address,
-        int address_length) {
+        struct socket_meta * socket_information,
+        uint8_t * ack_buf) {
 
     struct packet_meta * packet_meta;
     struct ack_packet * ack_packet;
@@ -85,17 +83,15 @@ int send_packet(
     times_resent = 0;
     do {
         if ((sent_bytes = send_buffer(
-                        socket,
+                        socket_information,
                         packet_meta->ptr,
-                        packet_meta->length,
-                        address,
-                        address_length))
+                        packet_meta->length))
                 == -1) {
             printf("Problem sending data from inside send packet: %i \n", errno);
             return sent_bytes;
         }
         //FIXME: check if recv_bytes == -1
-        recv_bytes = receive_buffer(socket, ack_buf, ACK_PACKET_LENGTH, address, address_length);
+        recv_bytes = receive_buffer(socket_information, ack_buf, ACK_PACKET_LENGTH);
         printf("received %zu bytes \n", recv_bytes);
 
         if ((ack_packet = convert_buf_to_ack_packet(ack_buf, recv_bytes)) == NULL) {
@@ -114,20 +110,18 @@ int send_packet(
 }
 
 int send_buffer(
-        int * socket,
+        struct socket_meta * socket_information,
         uint8_t * buf,
-        int buf_length,
-        struct sockaddr_in * address,
-        int address_length) {
+        int buf_length) {
     size_t sent_bytes;
 
     if ((sent_bytes = sendto(
-                *socket,
+                *socket_information->socket,
                 buf,
                 buf_length,
                 0,
-                (struct sockaddr *) address,
-                (socklen_t) address_length))
+                (struct sockaddr *) socket_information->address,
+                (socklen_t) socket_information->length))
             == -1) {
         printf("Problem sending data: %i \n", errno);
     }

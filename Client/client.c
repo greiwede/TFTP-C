@@ -19,16 +19,27 @@ int main() {
     struct sockaddr_in server_data_addr;
     int server_data_length = sizeof(server_control_addr);
     int socket_fd;
+    struct socket_meta * control_socket_information = malloc(sizeof(struct socket_meta));
+    struct socket_meta * data_socket_information = malloc(sizeof(struct socket_meta));
 
     if ((socket_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         printf("couldn't build socket");
         return 1;
     }
+
     set_receiving_timeout(socket_fd);
 
     server_control_addr.sin_family = AF_INET;
     server_control_addr.sin_port = htons(TFTP_PORT);
     server_control_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    control_socket_information->socket = &socket_fd;
+    control_socket_information->address = &server_control_addr;
+    control_socket_information->length = server_control_length;
+
+    data_socket_information->socket = &socket_fd;
+    data_socket_information->address = &server_data_addr;
+    data_socket_information->length = server_data_length;
 
     while (1) {
         uint16_t request_type = inquire_request_type();
@@ -41,35 +52,32 @@ int main() {
         struct packet_meta * packet_meta =  build_request_frame(packet);
 
         ssize_t sent_bytes;
-        if ((sent_bytes = sendto(
-                    socket_fd,
+        if ((sent_bytes = send_buffer(
+                    control_socket_information,
                     packet_meta->ptr,
-                    packet_meta->length,
-                    0,
-                    (struct sockaddr *) &server_control_addr,
-                    (socklen_t) server_control_length))
+                    packet_meta->length))
                 == -1) {
             printf("Problem sending stuff: %i \n", errno);
 		}
 
         if (packet->opcode == OPCODE_RRQ) {
-            receive_file(packet, &socket_fd, &server_data_addr, server_data_length);
+            // TODO: Error handling ?? Return is void
+            receive_file(packet, data_socket_information);
         } else {
             uint8_t * buf = malloc(sizeof(uint8_t) * ACK_PACKET_LENGTH);
             ssize_t received_bytes;
             if ((received_bytes = receive_buffer(
-                            &socket_fd,
+                            data_socket_information,
                             buf,
-                            ACK_PACKET_LENGTH,
-                            &server_data_addr,
-                            server_data_length))
+                            ACK_PACKET_LENGTH))
                     == -1) {
                 printf("Couldn't establish connection to server \n");
             }
             printf("received bytes: %zu \n", received_bytes);
             struct ack_packet * ack = convert_buf_to_ack_packet(buf, received_bytes);
             if (ack != NULL && ack->block_no == 0) {
-                send_file(packet, &socket_fd, &server_data_addr, server_data_length);
+                // TODO: Error Handling ?? Return is void
+                send_file(packet, data_socket_information);
             }
             free_ack_packet(ack);
             free(buf);

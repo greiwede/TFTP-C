@@ -9,13 +9,12 @@
 #include "../Packet_Manipulation/packets.h"
 #include "../Packet_Manipulation/read_packets.h"
 #include "../Packet_Manipulation/write_packets.h"
+#include "../utils.h"
 #include "send_data.h"
 
 void receive_file(
         struct request_packet * request,
-        int * socket,
-        struct sockaddr_in * address,
-        int address_length) {
+        struct socket_meta * socket_information) {
     FILE * fd;
     struct data_packet * data_packet;
     uint8_t * data;
@@ -32,7 +31,7 @@ void receive_file(
 
     block_number = 1;
     do {
-        data_packet = receive_packet(block_number, socket, buf, address, address_length);
+        data_packet = receive_packet(block_number, socket_information, buf);
         // TODO: handle returned null
         fwrite(data_packet->data, 1, data_packet->data_length, fd);
         block_number++;
@@ -44,10 +43,8 @@ void receive_file(
 
 struct data_packet * receive_packet(
         uint16_t block_number,
-        int * socket,
-        uint8_t * data_buf,
-        struct sockaddr_in * address,
-        int address_length) {
+        struct socket_meta * socket_information,
+        uint8_t * data_buf) {
 
     struct packet_meta * packet_meta;
     struct ack_packet * ack_packet;
@@ -63,11 +60,9 @@ struct data_packet * receive_packet(
     do {
         recv_bytes = 0;
         if((recv_bytes = receive_buffer(
-                        socket,
+                        socket_information,
                         data_buf,
-                        PACKET_MAX_LENGTH,
-                        address,
-                        address_length))
+                        PACKET_MAX_LENGTH))
                 == -1) {
             printf("Failed receiving bytes: %i \n", errno);
             continue;
@@ -76,11 +71,9 @@ struct data_packet * receive_packet(
 
         // FIXME: receive_buffer return sszize_t, sent_bytes is size_t --> Castingfehler
         if ((sent_bytes = send_buffer(
-                        socket,
+                        socket_information,
                         packet_meta->ptr,
-                        packet_meta->length,
-                        address,
-                        address_length))
+                        packet_meta->length))
                 == -1) {
             printf("Failed sending data %i", errno);
             return NULL;
@@ -97,22 +90,20 @@ struct data_packet * receive_packet(
 }
 
 int receive_buffer(
-        int * socket,
+        struct socket_meta * socket_information,
         uint8_t * buf,
-        int buf_length,
-        struct sockaddr_in * address,
-        int length) {
+        int buf_length) {
     ssize_t recv_bytes;
 
     // TODO: what happens after timeout?
     memset(buf, 0, buf_length);
     if ((recv_bytes = recvfrom(
-                    *socket,
+                    *socket_information->socket,
                     buf,
                     buf_length,
                     0,
-                    (struct sockaddr *) address,
-                    (socklen_t *) &length))
+                    (struct sockaddr *) socket_information->address,
+                    (socklen_t *) &socket_information->length))
                 == -1) {
         printf("Problem receiving data: %i \n", errno);
     }

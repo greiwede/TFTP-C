@@ -13,23 +13,17 @@
 
 void receive_file(
         struct request_packet * request,
-        int * socket,
-        struct sockaddr_in * address,
-        int address_length);
+        struct socket_meta * socket_information);
 
 struct data_packet * receive_packet(
         uint16_t block_number,
-        int * socket,
-        uint8_t * data_buf,
-        struct sockaddr_in * address,
-        int address_length);
+        struct socket_meta * socket_information,
+        uint8_t * data_buf);
 
 int receive_buffer(
-        int * socket,
+        struct socket_meta * socket_information,
         uint8_t * buf,
-        int buf_length,
-        struct sockaddr_in * address,
-        int length);
+        int buf_length);
 
 int set_receiving_timeout(int socket_fd);
 

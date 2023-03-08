@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 
-// TODO: Einbauen in Code
 typedef struct socket_meta {
     int * socket;
     struct sockaddr_in * address;
