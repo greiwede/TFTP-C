@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-
 typedef struct socket_meta {
     int * socket;
     struct sockaddr_in * address;

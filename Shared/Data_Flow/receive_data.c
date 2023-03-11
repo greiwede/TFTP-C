@@ -10,20 +10,27 @@
 #include "../Packet_Manipulation/read_packets.h"
 #include "../Packet_Manipulation/write_packets.h"
 #include "../utils.h"
+#include "../file_manipulation.h"
 #include "send_data.h"
 
-void receive_file(
-        struct request_packet * request,
-        struct socket_meta * socket_information) {
+void receive_file(struct request_packet * request, struct socket_meta * socket_information) {
     FILE * fd;
     struct data_packet * data_packet;
     uint8_t * data;
     uint8_t * buf;
     uint16_t block_number;
 
-    if ((fd = fopen(request->file_name, "wb")) == NULL) {
-        // TODO: send error
-        return;
+    // TODO: get rid of path for filename
+    if (strcmp(request->mode, MODE_NETASCII) == 0) {
+        if ((fd = fopen(request->file_name, "w")) == NULL) {
+            // TODO: send error
+            return;
+        }
+    } else {
+        if ((fd = fopen(request->file_name, "wb")) == NULL) {
+            // TODO: send error
+            return;
+        }
     }
 
     data = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
@@ -33,7 +40,13 @@ void receive_file(
     do {
         data_packet = receive_packet(block_number, socket_information, buf);
         // TODO: handle returned null
-        fwrite(data_packet->data, 1, data_packet->data_length, fd);
+        if (strcmp(request->mode, MODE_NETASCII) == 0) {
+            printf("Converting from netascii \n");
+            int new_length = buf_from_netascii(data_packet->data, data_packet->data_length);
+            fwrite(data_packet->data, 1, new_length, fd);
+        } else {
+            fwrite(data_packet->data, 1, data_packet->data_length, fd);
+        }
         block_number++;
         printf("Received data length: %i \n", data_packet->data_length);
     } while (data_packet->data_length == 512);
@@ -59,11 +72,7 @@ struct data_packet * receive_packet(
     times_resent = 0;
     do {
         recv_bytes = 0;
-        if((recv_bytes = receive_buffer(
-                        socket_information,
-                        data_buf,
-                        PACKET_MAX_LENGTH))
-                == -1) {
+        if((recv_bytes = receive_buffer(socket_information, data_buf, PACKET_MAX_LENGTH)) == -1) {
             printf("Failed receiving bytes: %i \n", errno);
             continue;
         }
@@ -90,9 +99,7 @@ struct data_packet * receive_packet(
 }
 
 int receive_buffer(
-        struct socket_meta * socket_information,
-        uint8_t * buf,
-        int buf_length) {
+        struct socket_meta * socket_information, uint8_t * buf, int buf_length) {
     ssize_t recv_bytes;
 
     // TODO: what happens after timeout?

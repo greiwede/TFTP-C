@@ -6,6 +6,8 @@
 
 uint16_t inquire_request_type();
 char * inquire_file_name(uint16_t request_type);
+char * inquire_mode();
+
 int set_stdin_nonblocking();
 int set_stdin_blocking();
 

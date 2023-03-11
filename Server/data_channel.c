@@ -42,10 +42,7 @@ void * handle_request(void * request_params) {
         struct ack_packet * first_ack = build_ack_packet(0);
         struct packet_meta * meta = build_ack_frame(first_ack);
         int sent_bytes;
-        if ((sent_bytes = send_buffer(
-                        socket_information,
-                        meta->ptr,
-                        meta->length))
+        if ((sent_bytes = send_buffer(socket_information, meta->ptr, meta->length))
                 == -1) {
             printf("data connection coouldn't be established %i \n", errno);
         } else {

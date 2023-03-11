@@ -42,7 +42,7 @@ uint16_t inquire_request_type() {
 }
 
 char * inquire_file_name(uint16_t request_type) {
-    // FIXME: redo if invalid file name!
+    // XXX: look at possible buffer overflows
     char * file_name = malloc(MAX_FILE_NAME_LENGTH);
     printf("Specify file: \n");
     scanf("%" STR(MAX_FILE_NAME_LENGTH) "s", file_name);
@@ -54,6 +54,13 @@ char * inquire_file_name(uint16_t request_type) {
     }
     return file_name;
 }
+
+
+char * inquire_mode() {
+    return MODE_NETASCII;
+}
+
+
 int set_stdin_nonblocking() {
     int flags = fcntl(STDIN_FILENO, F_GETFL);
     if (flags == -1) {
@@ -66,6 +73,7 @@ int set_stdin_nonblocking() {
     return 0;
 }
 
+
 int set_stdin_blocking() {
     int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
     if (flags == -1) {
@@ -77,4 +85,3 @@ int set_stdin_blocking() {
         }
     return 0;
 }
-

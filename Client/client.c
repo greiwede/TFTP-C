@@ -42,13 +42,14 @@ int main() {
     data_socket_information->length = server_data_length;
 
     while (1) {
+        char * mode = inquire_mode();
         uint16_t request_type = inquire_request_type();
         char * file_name = inquire_file_name(request_type);
 
         struct request_packet * packet = build_request_packet(
                 request_type,
                 file_name,
-                MODE_NETASCII);
+                mode);
         struct packet_meta * packet_meta =  build_request_frame(packet);
 
         ssize_t sent_bytes;
@@ -66,10 +67,7 @@ int main() {
         } else {
             uint8_t * buf = malloc(sizeof(uint8_t) * ACK_PACKET_LENGTH);
             ssize_t received_bytes;
-            if ((received_bytes = receive_buffer(
-                            data_socket_information,
-                            buf,
-                            ACK_PACKET_LENGTH))
+            if ((received_bytes = receive_buffer(data_socket_information, buf, ACK_PACKET_LENGTH))
                     == -1) {
                 printf("Couldn't establish connection to server \n");
             }

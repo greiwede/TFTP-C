@@ -27,7 +27,6 @@ int main() {
         return -1;
     }
     control_socket_information->socket = &control_socket;
-    printf("control socket: %i \n", control_socket);
 
     if (bind_control_socket(control_socket) == -1) {
         return -1;

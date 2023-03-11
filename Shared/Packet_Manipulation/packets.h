@@ -49,6 +49,7 @@ typedef enum {
 
 #define MODE_NETASCII "netascii"
 #define MODE_OCTET "octet"
+// deprecated:
 #define MODE_MAIL "mail"
 
 typedef struct packet_meta {
