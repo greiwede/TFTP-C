@@ -26,18 +26,27 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
 
     printf("mode: %s \n", request->mode);
 
+    int was_read = 1;
     if (strcmp(request->mode, MODE_NETASCII) == 0) {
         printf("this is netascii reading \n");
         if ((fd = fopen(request->file_name, "r")) == NULL) {
-            // TODO: send error
-            return;
+            was_read = 0;
         }
     } else {
         printf("this is not netascii reading \n");
         if ((fd = fopen(request->file_name, "rb")) == NULL) {
-            // TODO: send error
-            return;
+            was_read = 0;
         }
+    }
+    if (was_read != 1) {
+        struct error_packet * error_packet = build_error_packet(
+                EC_FILE_NOT_FOUND,
+                "FILE NOT FOUND");
+        struct packet_meta * error_meta = build_error_frame(error_packet);
+        send_buffer(socket_information, error_meta->ptr, error_meta->length);
+        free(error_packet);
+        free(error_meta);
+        return;
     }
 
     data = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
@@ -48,6 +57,7 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
     excess_queue = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
     while ((bytes_read = fread(data + excess_bytes, 1, DATA_MAX_LENGTH - excess_bytes, fd))
             == DATA_MAX_LENGTH) {
+        printf("bytes read file %zu \n", bytes_read);
         if (strcmp(request->mode, MODE_NETASCII) == 0) {
             printf("Converting to netascii \n");
             buf_to_netascii(&excess_bytes, data, bytes_read, excess_queue);

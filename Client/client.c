@@ -61,8 +61,9 @@ int main() {
             printf("Problem sending stuff: %i \n", errno);
 		}
 
+        // TODO: Host A sends a request to host B. Somewhere in the network, the request packet is duplicated, and as a result two acknowledgments are returned to host A, with different TID's chosen on host B in response to the two requests.  When the first response arrives, host A continues the connection.  When the second response to the request arrives, it should be rejected, but there is no reason to terminate the first connection.  Therefore, if different TID's are chosen for the two connections on host B and host A checks the source TID's of the messages it receives, the first connection can be maintained while the second is rejected by returning an error packet.
+
         if (packet->opcode == OPCODE_RRQ) {
-            // TODO: Error handling ?? Return is void
             receive_file(packet, data_socket_information);
         } else {
             uint8_t * buf = malloc(sizeof(uint8_t) * ACK_PACKET_LENGTH);
@@ -73,16 +74,28 @@ int main() {
             }
             printf("received bytes: %zu \n", received_bytes);
             struct ack_packet * ack = convert_buf_to_ack_packet(buf, received_bytes);
-            if (ack != NULL && ack->block_no == 0) {
-                // TODO: Error Handling ?? Return is void
-                send_file(packet, data_socket_information);
+            if (ack != NULL) {
+                if (ack->block_no == 0) {
+                    send_file(packet, data_socket_information);
+                }
+            } else {
+                struct error_packet * error_packet = convert_buf_to_error_packet(buf, received_bytes);
+                if (error_packet == NULL) {
+                    printf("Unknown error occured receiving data");
+                    free(buf);
+                    return -1;
+                }
+                printf("Error: %i - %s", error_packet->error_code, error_packet->error_message);
+                free_error_packet(error_packet);
+                free(buf);
+                return -1;
             }
             free_ack_packet(ack);
             free(buf);
         }
-
         // TODO: free here?
         free_request_packet(packet);
         free_packet_meta(packet_meta);
     }
+    free(control_socket_information);
 }

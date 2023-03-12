@@ -38,8 +38,9 @@ void receive_file(struct request_packet * request, struct socket_meta * socket_i
 
     block_number = 1;
     do {
-        data_packet = receive_packet(block_number, socket_information, buf);
-        // TODO: handle returned null
+        if ((data_packet = receive_packet(block_number, socket_information, buf)) == NULL) {
+            return;
+        }
         if (strcmp(request->mode, MODE_NETASCII) == 0) {
             printf("Converting from netascii \n");
             int new_length = buf_from_netascii(data_packet->data, data_packet->data_length);
@@ -77,6 +78,15 @@ struct data_packet * receive_packet(
             continue;
         }
         data_packet = convert_buf_to_data_packet(data_buf, recv_bytes);
+        if (data_packet == NULL) {
+            struct error_packet * error_packet = convert_buf_to_error_packet(data_buf, recv_bytes);
+            if (error_packet == NULL) {
+                printf("Unknown error occured receiving data");
+                return NULL;
+            }
+            printf("Error: %i - %s", error_packet->error_code, error_packet->error_message);
+            return NULL;
+        }
 
         // FIXME: receive_buffer return sszize_t, sent_bytes is size_t --> Castingfehler
         if ((sent_bytes = send_buffer(

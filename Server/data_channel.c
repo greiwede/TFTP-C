@@ -35,6 +35,17 @@ void * handle_request(void * request_params) {
     set_receiving_timeout(data_socket);
 
     packet = convert_buf_to_request_packet(params->buf, params->buf_length);
+    if (packet == NULL) {
+            struct error_packet * error_packet = convert_buf_to_error_packet(
+                    params->buf,
+                    params->buf_length);
+            if (error_packet == NULL) {
+                printf("Unknown error occured receiving request");
+                return NULL;
+            }
+            printf("Error: %i - %s", error_packet->error_code, error_packet->error_message);
+            return NULL;
+    }
 
     if (packet->opcode == OPCODE_RRQ) {
         send_file(packet, socket_information);
@@ -46,11 +57,14 @@ void * handle_request(void * request_params) {
                 == -1) {
             printf("data connection coouldn't be established %i \n", errno);
         } else {
-            //TODO: Error Handling??
             receive_file(packet, socket_information);
         }
     } else {
-        // FIXME: send error message
+        struct error_packet * error_packet = build_error_packet(EC_ILLEGAL_TFTP_OP, "NOT RRQ OR WRQ");
+        struct packet_meta * meta = build_error_frame(error_packet);
+        send_buffer(socket_information, meta->ptr, meta->length);
+        free_error_packet(error_packet);
+        free_packet_meta(meta);
     }
     pthread_exit(NULL);
     return NULL;
