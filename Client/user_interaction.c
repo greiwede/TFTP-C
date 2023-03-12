@@ -55,7 +55,7 @@ char * inquire_file_name(uint16_t request_type) {
     return file_name;
 }
 
-
+//FIXME: Read in
 char * inquire_mode() {
     return MODE_NETASCII;
 }

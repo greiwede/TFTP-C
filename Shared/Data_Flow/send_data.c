@@ -21,6 +21,7 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
     struct data_packet * data_packet;
     uint8_t * data;
     uint8_t * buf;
+    uint8_t * netascii_buf;
     uint8_t * excess_queue;
     uint16_t block_number;
 
@@ -51,16 +52,16 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
 
     data = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
     buf = malloc(sizeof(uint8_t) * PACKET_MAX_LENGTH);
+    netascii_buf = malloc(sizeof(uint8_t) * 2 * DATA_MAX_LENGTH);
     block_number = 1;
 
     excess_bytes = 0;
     excess_queue = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
-    while ((bytes_read = fread(data + excess_bytes, 1, DATA_MAX_LENGTH - excess_bytes, fd))
-            == DATA_MAX_LENGTH) {
+    while ((bytes_read = fread(data, 1, DATA_MAX_LENGTH - excess_bytes, fd))
+            == DATA_MAX_LENGTH - excess_bytes) {
         printf("bytes read file %zu \n", bytes_read);
         if (strcmp(request->mode, MODE_NETASCII) == 0) {
-            printf("Converting to netascii \n");
-            buf_to_netascii(&excess_bytes, data, bytes_read, excess_queue);
+            bytes_read = handle_netascii_buf(data, bytes_read, netascii_buf, excess_queue, &excess_bytes);
         }
         data_packet = build_data_packet(block_number, data, bytes_read);
         if (send_packet(data, data_packet, block_number, socket_information, buf) == -1) {
@@ -69,16 +70,25 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
         printf("block no %i\n", block_number);
         block_number++;
     }
-    // TODO: handle last read below 512 but after conversion above 512
     fclose(fd);
     if (strcmp(request->mode, MODE_NETASCII) == 0) {
-        bytes_read = buf_to_netascii(&excess_bytes, data, bytes_read, excess_queue);
+        bytes_read = handle_netascii_buf(data, bytes_read, netascii_buf, excess_queue, &excess_bytes);
+        printf("Bytes read: %zu \n", bytes_read);
     }
     data_packet = build_data_packet(block_number, data, bytes_read);
     if (send_packet(data, data_packet, block_number, socket_information, buf) == -1) {
         return;
     }
     printf("block no %i\n", block_number);
+    if (bytes_read == DATA_MAX_LENGTH) {
+        block_number++;
+        data_packet = build_data_packet(block_number, excess_queue, excess_bytes);
+
+        printf("excess bytes: %i \n", excess_bytes);
+        if (send_packet(data, data_packet, block_number, socket_information, buf) == -1) {
+            return;
+        }
+    }
     printf("file sent \n");
 }
 
