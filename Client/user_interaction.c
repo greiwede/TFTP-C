@@ -12,25 +12,15 @@
 
 uint16_t inquire_request_type() {
     unsigned char requested_mode;
-    int input=-1;
+    int input = -1;
 
-    if (set_stdin_nonblocking() == -1) {
-        printf("Error setting stdin nonblocking \n");
-        // TODO: handle error
+    if (clear_stdin_for_getchar() == 0) {
+        printf("Failed inquiring request type, please restart \n");
+        return 0;
     }
-    input = getchar();
-    if (set_stdin_blocking() == -1) {
-        printf("Error setting stdin blocking \n");
-        // TODO: handle error
-    }
-    while ((input != '\n' && input != EOF) && input != -1) {
-        input = getchar();
-    };
-
     do {
-        printf("Specify mode [1 for read, 2 for write]: \n");
+        printf("Specify request type [1 - read, 2 - write]: \n");
         requested_mode = getchar();
-        printf("You entered the character: %c\n", requested_mode);
         while ((input = getchar()) != '\n' && input != EOF);
     } while (requested_mode != '1' && requested_mode != '2');
 
@@ -55,8 +45,25 @@ char * inquire_file_name(uint16_t request_type) {
     return file_name;
 }
 
-//FIXME: Read in
 char * inquire_mode() {
+    unsigned char requested_mode;
+    int input = -1;
+
+    if (clear_stdin_for_getchar() == 0) {
+        printf("Failed inquiring mode, please restart \n");
+        return 0;
+    }
+    do {
+        printf("Specify transfer mode: [1 - NETASCII, 2 - OCTET]: \n");
+        requested_mode = getchar();
+        while ((input = getchar()) != '\n' && input != EOF);
+    } while (requested_mode != '1' && requested_mode != '2');
+
+    if (requested_mode == '1') {
+        return MODE_NETASCII;
+    } else {
+        return MODE_OCTET;
+    }
     return MODE_NETASCII;
 }
 
@@ -84,4 +91,22 @@ int set_stdin_blocking() {
             return -1;
         }
     return 0;
+}
+
+
+int clear_stdin_for_getchar(){
+    int input = -1;
+    if (set_stdin_nonblocking() == -1) {
+        printf("Error setting stdin nonblocking \n");
+        return 0;
+    }
+    input = getchar();
+    if (set_stdin_blocking() == -1) {
+        printf("Error setting stdin blocking \n");
+        return 0;
+    }
+    while ((input != '\n' && input != EOF) && input != -1) {
+        input = getchar();
+    };
+    return 1;
 }

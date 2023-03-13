@@ -37,13 +37,19 @@ void receive_file(struct request_packet * request, struct socket_meta * socket_i
     buf = malloc(sizeof(uint8_t) * PACKET_MAX_LENGTH);
 
     block_number = 1;
+    uint8_t last_char;
     do {
         if ((data_packet = receive_packet(block_number, socket_information, buf)) == NULL) {
             return;
         }
         if (strcmp(request->mode, MODE_NETASCII) == 0) {
             printf("Converting from netascii \n");
-            int new_length = buf_from_netascii(data_packet->data, data_packet->data_length);
+            // store last char from last packet if was CR do not write it
+            // if CR -> check first char from new packet for NUL and LF
+            int new_length = buf_from_netascii(
+                    data_packet->data,
+                    data_packet->data_length,
+                    &last_char);
             fwrite(data_packet->data, 1, new_length, fd);
         } else {
             fwrite(data_packet->data, 1, data_packet->data_length, fd);
@@ -63,7 +69,7 @@ struct data_packet * receive_packet(
     struct packet_meta * packet_meta;
     struct ack_packet * ack_packet;
     struct data_packet * data_packet;
-    size_t sent_bytes;
+    ssize_t sent_bytes;
     ssize_t recv_bytes;
     int times_resent;
 
@@ -88,7 +94,6 @@ struct data_packet * receive_packet(
             return NULL;
         }
 
-        // FIXME: receive_buffer return sszize_t, sent_bytes is size_t --> Castingfehler
         if ((sent_bytes = send_buffer(
                         socket_information,
                         packet_meta->ptr,

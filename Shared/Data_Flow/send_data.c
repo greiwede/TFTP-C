@@ -101,7 +101,7 @@ int send_packet(
 
     struct packet_meta * packet_meta;
     struct ack_packet * ack_packet;
-    size_t sent_bytes;
+    ssize_t sent_bytes;
     ssize_t recv_bytes;
     int times_resent;
 
@@ -117,8 +117,11 @@ int send_packet(
             printf("Problem sending data from inside send packet: %i \n", errno);
             return sent_bytes;
         }
-        //FIXME: check if recv_bytes == -1
-        recv_bytes = receive_buffer(socket_information, ack_buf, ACK_PACKET_LENGTH);
+        if ((recv_bytes = receive_buffer(socket_information, ack_buf, ACK_PACKET_LENGTH)) == -1) {
+            // timeout occured
+            times_resent++;
+            continue;
+        }
 
         if ((ack_packet = convert_buf_to_ack_packet(ack_buf, recv_bytes)) == NULL) {
             printf("Not an ACK packet \n");
@@ -139,7 +142,7 @@ int send_buffer(
         struct socket_meta * socket_information,
         uint8_t * buf,
         int buf_length) {
-    size_t sent_bytes;
+    ssize_t sent_bytes;
 
     if ((sent_bytes = sendto(
                 *socket_information->socket,

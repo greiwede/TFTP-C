@@ -10,5 +10,6 @@ char * inquire_mode();
 
 int set_stdin_nonblocking();
 int set_stdin_blocking();
+int clear_stdin_for_getchar();
 
 #endif

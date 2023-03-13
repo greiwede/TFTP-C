@@ -6,7 +6,6 @@
 
 #include "Packet_Manipulation/packets.h"
 
-// FIXME: make sure each char is actually ascii
 int buf_to_netascii(uint8_t * data, int data_length, uint8_t * netascii_buf) {
     int index_netascii;
     int index_data;
@@ -40,8 +39,7 @@ int buf_to_netascii(uint8_t * data, int data_length, uint8_t * netascii_buf) {
     return index_netascii;
 }
 
-//FIXME: what if last char is CR --> CR NL
-int buf_from_netascii(uint8_t * buf, int buf_length) {
+int buf_from_netascii(uint8_t * buf, int buf_length, uint8_t * last_char) {
     int buf_index;
     uint8_t * local_buf;
     int local_index;
@@ -49,6 +47,17 @@ int buf_from_netascii(uint8_t * buf, int buf_length) {
     local_buf = malloc(sizeof(uint8_t) * buf_length);
     buf_index = 0;
     local_index = 0;
+
+    // check whether <CR><LF> or <CR><NULL> were split in between packets
+    if (*last_char == ASCII_CR && buf_length > 0) {
+        if (buf[0] == ASCII_LF) {
+            local_buf[local_index] = ASCII_NL;
+        } else { // means -> (next == ASCII_NUL)
+            local_buf[local_index] = ASCII_CR;
+        }
+        local_index++;
+        buf_index++;
+    }
 
     int replaced = 0;
     while (buf_index < buf_length) {
@@ -58,18 +67,18 @@ int buf_from_netascii(uint8_t * buf, int buf_length) {
 
         is_normal_char = 1;
         current = buf[buf_index];
-        if (buf_index + 1 < buf_length) {
-            next = buf[buf_index + 1];
-            if (current == ASCII_CR) {
+        if (current == ASCII_CR) {
+            if (buf_index + 1 < buf_length) {
+                next = buf[buf_index + 1];
                 if (next == ASCII_LF) {
                     local_buf[local_index] = ASCII_NL;
                 } else { // means -> (next == ASCII_NUL)
                     local_buf[local_index] = ASCII_CR;
                 }
                 buf_index++;
-                is_normal_char = 0;
                 replaced++;
             }
+            is_normal_char = 0;
         }
         if (is_normal_char) {
             local_buf[local_index] = buf[buf_index];
@@ -78,6 +87,12 @@ int buf_from_netascii(uint8_t * buf, int buf_length) {
         local_index++;
     }
     printf("Replaced chars %i \n", replaced);
+
+    // safe last_char for checking split with next packet
+    *last_char = buf[buf_length - 1];
+    if (*last_char == ASCII_CR) {
+        local_index--;
+    }
 
     memset(buf, 0, buf_length);
     memcpy(buf, local_buf, local_index);
@@ -89,10 +104,7 @@ int handle_netascii_buf(uint8_t * data, int bytes_read, uint8_t * netascii_buf, 
     int netascii_buf_length;
     int send_bytes;
     int available_bytes = DATA_MAX_LENGTH - *excess_bytes;
-    printf("Available bytes: %i \n", available_bytes);
-    printf("Converting to netascii \n");
     netascii_buf_length = buf_to_netascii(data, bytes_read, netascii_buf);
-    printf("netascii_buf_length: %i \n", netascii_buf_length);
     memcpy(data, excess_queue, *excess_bytes);
     memcpy(data + *excess_bytes, netascii_buf, available_bytes);
     if (netascii_buf_length > available_bytes) {

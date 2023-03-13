@@ -42,9 +42,9 @@ int main() {
     data_socket_information->length = server_data_length;
 
     while (1) {
-        char * mode = inquire_mode();
         uint16_t request_type = inquire_request_type();
         char * file_name = inquire_file_name(request_type);
+        char * mode = inquire_mode();
 
         struct request_packet * packet = build_request_packet(
                 request_type,
