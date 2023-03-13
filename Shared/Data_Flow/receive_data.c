@@ -114,10 +114,11 @@ struct data_packet * receive_packet(
 }
 
 int receive_buffer(
-        struct socket_meta * socket_information, uint8_t * buf, int buf_length) {
+        struct socket_meta * socket_information,
+        uint8_t * buf,
+        int buf_length) {
     ssize_t recv_bytes;
 
-    // TODO: what happens after timeout?
     memset(buf, 0, buf_length);
     if ((recv_bytes = recvfrom(
                     *socket_information->socket,

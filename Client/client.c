@@ -27,6 +27,8 @@ int main() {
         return 1;
     }
 
+    // FIXME: get server address from command line
+
     set_receiving_timeout(socket_fd);
 
     server_control_addr.sin_family = AF_INET;
@@ -61,14 +63,22 @@ int main() {
             printf("Problem sending stuff: %i \n", errno);
 		}
 
-        // TODO: Host A sends a request to host B. Somewhere in the network, the request packet is duplicated, and as a result two acknowledgments are returned to host A, with different TID's chosen on host B in response to the two requests.  When the first response arrives, host A continues the connection.  When the second response to the request arrives, it should be rejected, but there is no reason to terminate the first connection.  Therefore, if different TID's are chosen for the two connections on host B and host A checks the source TID's of the messages it receives, the first connection can be maintained while the second is rejected by returning an error packet.
+        // TODO:
+        // Host A sends a request to host B. Somewhere in the network, the request packet is
+        // duplicated, and as a result two acknowledgments are returned to host A, with different
+        // TID's chosen on host B in response to the two requests.  When the first response
+        // arrives, host A continues the connection.  When the second response to the request
+        // arrives, it should be rejected, but there is no reason to terminate the first
+        // connection. Therefore, if different TID's are chosen for the two connections on host B
+        // and host A checks the source TID's of the messages it receives, the first connection can
+        // be maintained while the second is rejected by returning an error packet.
 
         if (packet->opcode == OPCODE_RRQ) {
             receive_file(packet, data_socket_information);
         } else {
             uint8_t * buf = malloc(sizeof(uint8_t) * ACK_PACKET_LENGTH);
             ssize_t received_bytes;
-            if ((received_bytes = receive_buffer(data_socket_information, buf, ACK_PACKET_LENGTH))
+            if ((received_bytes = receive_buffer(data_socket_information, buf, PACKET_MAX_LENGTH))
                     == -1) {
                 printf("Couldn't establish connection to server \n");
             }

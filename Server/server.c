@@ -45,7 +45,6 @@ int main() {
         control_socket_information->length = client_length;
 
         memset(buf, 0, PACKET_MAX_LENGTH);
-        // FIXME: how to make blocking
         if ((recv_len = receive_buffer(
                         control_socket_information,
                         buf,

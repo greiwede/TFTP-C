@@ -117,16 +117,22 @@ int send_packet(
             printf("Problem sending data from inside send packet: %i \n", errno);
             return sent_bytes;
         }
-        if ((recv_bytes = receive_buffer(socket_information, ack_buf, ACK_PACKET_LENGTH)) == -1) {
+        if ((recv_bytes = receive_buffer(socket_information, ack_buf, PACKET_MAX_LENGTH)) == -1) {
             // timeout occured
             times_resent++;
             continue;
         }
 
         if ((ack_packet = convert_buf_to_ack_packet(ack_buf, recv_bytes)) == NULL) {
-            printf("Not an ACK packet \n");
-            // TODO: send error
+            struct error_packet * error_packet = convert_buf_to_error_packet(ack_buf, recv_bytes);
+            if (error_packet == NULL) {
+                printf("Unknown error occured receiving acknowledgment");
+                return -1;
+            }
+            printf("Error: %i - %s", error_packet->error_code, error_packet->error_message);
             return -1;
+        }
+        if (data_packet == NULL) {
         }
 
         if (ack_packet->block_no != block_number) {
