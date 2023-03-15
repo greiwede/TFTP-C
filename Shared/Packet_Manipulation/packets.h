@@ -6,7 +6,7 @@
 /*
  * Default port for control channel is 69
  */
-#define TFTP_PORT 8800
+#define TFTP_PORT 69
 
 
 /*

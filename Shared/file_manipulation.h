@@ -19,4 +19,6 @@ int buf_from_netascii(uint8_t * buf, int buf_length, uint8_t * last_char);
 
 int handle_netascii_buf(uint8_t * data, int bytes_read, uint8_t * netascii_buf, uint8_t * excess_queue, int * excess_bytes);
 
+struct error_packet * determine_file_opening_error();
+
 #endif

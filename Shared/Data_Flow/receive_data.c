@@ -20,17 +20,19 @@ void receive_file(struct request_packet * request, struct socket_meta * socket_i
     uint8_t * buf;
     uint16_t block_number;
 
-    // TODO: get rid of path for filename
     if (strcmp(request->mode, MODE_NETASCII) == 0) {
-        if ((fd = fopen(request->file_name, "w")) == NULL) {
-            // TODO: send error
-            return;
-        }
+        fd = fopen(request->file_name, "w");
     } else {
-        if ((fd = fopen(request->file_name, "wb")) == NULL) {
-            // TODO: send error
-            return;
-        }
+        fd = fopen(request->file_name, "wb");
+    }
+    if (fd == NULL) {
+        printf("Failed to open file - ");
+        struct error_packet * error_packet = determine_file_opening_error();
+        struct packet_meta * error_meta = build_error_frame(error_packet);
+        send_buffer(socket_information, error_meta->ptr, error_meta->length);
+        free(error_packet);
+        free(error_meta);
+        return;
     }
 
     data = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
@@ -44,8 +46,6 @@ void receive_file(struct request_packet * request, struct socket_meta * socket_i
         }
         if (strcmp(request->mode, MODE_NETASCII) == 0) {
             printf("Converting from netascii \n");
-            // store last char from last packet if was CR do not write it
-            // if CR -> check first char from new packet for NUL and LF
             int new_length = buf_from_netascii(
                     data_packet->data,
                     data_packet->data_length,
@@ -90,7 +90,7 @@ struct data_packet * receive_packet(
                 printf("Unknown error occured receiving data");
                 return NULL;
             }
-            printf("Error: %i - %s", error_packet->error_code, error_packet->error_message);
+            printf("Error: %i - %s \n", error_packet->error_code, error_packet->error_message);
             return NULL;
         }
 

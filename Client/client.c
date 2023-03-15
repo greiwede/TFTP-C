@@ -13,7 +13,18 @@
 #include "../Shared/Data_Flow/send_data.h"
 #include "../Shared/Packet_Manipulation/packets.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+    in_addr_t addr;
+
+    // read in addr
+    if (argc >= 2) {
+        addr = inet_addr(argv[1]);
+    } else {
+        addr = inet_addr("127.0.0.1");
+        printf("Given server address was invalid - %i \n", errno);
+    }
+
+
     struct sockaddr_in server_control_addr;
     int server_control_length = sizeof(server_control_addr);
     struct sockaddr_in server_data_addr;
@@ -27,13 +38,11 @@ int main() {
         return 1;
     }
 
-    // FIXME: get server address from command line
-
     set_receiving_timeout(socket_fd);
 
     server_control_addr.sin_family = AF_INET;
     server_control_addr.sin_port = htons(TFTP_PORT);
-    server_control_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    server_control_addr.sin_addr.s_addr = addr;
 
     control_socket_information->socket = &socket_fd;
     control_socket_information->address = &server_control_addr;
@@ -62,6 +71,7 @@ int main() {
                 == -1) {
             printf("Problem sending stuff: %i \n", errno);
 		}
+        printf("trauriger katzen blick\n");
 
         // TODO:
         // Host A sends a request to host B. Somewhere in the network, the request packet is
@@ -91,11 +101,11 @@ int main() {
             } else {
                 struct error_packet * error_packet = convert_buf_to_error_packet(buf, received_bytes);
                 if (error_packet == NULL) {
-                    printf("Unknown error occured receiving data");
+                    printf("Unknown error occured receiving data \n");
                     free(buf);
                     return -1;
                 }
-                printf("Error: %i - %s", error_packet->error_code, error_packet->error_message);
+                printf("Error: %i - %s \n", error_packet->error_code, error_packet->error_message);
                 free_error_packet(error_packet);
                 free(buf);
                 return -1;
@@ -103,7 +113,6 @@ int main() {
             free_ack_packet(ack);
             free(buf);
         }
-        // TODO: free here?
         free_request_packet(packet);
         free_packet_meta(packet_meta);
     }

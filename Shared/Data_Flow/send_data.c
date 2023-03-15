@@ -27,22 +27,14 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
 
     printf("mode: %s \n", request->mode);
 
-    int was_read = 1;
     if (strcmp(request->mode, MODE_NETASCII) == 0) {
-        printf("this is netascii reading \n");
-        if ((fd = fopen(request->file_name, "r")) == NULL) {
-            was_read = 0;
-        }
+        fd = fopen(request->file_name, "r");
     } else {
-        printf("this is not netascii reading \n");
-        if ((fd = fopen(request->file_name, "rb")) == NULL) {
-            was_read = 0;
-        }
+        fd = fopen(request->file_name, "rb");
     }
-    if (was_read != 1) {
-        struct error_packet * error_packet = build_error_packet(
-                EC_FILE_NOT_FOUND,
-                "FILE NOT FOUND");
+    if (fd == NULL) {
+        printf("Failed to open file - ");
+        struct error_packet * error_packet = determine_file_opening_error();
         struct packet_meta * error_meta = build_error_frame(error_packet);
         send_buffer(socket_information, error_meta->ptr, error_meta->length);
         free(error_packet);
@@ -129,7 +121,7 @@ int send_packet(
                 printf("Unknown error occured receiving acknowledgment");
                 return -1;
             }
-            printf("Error: %i - %s", error_packet->error_code, error_packet->error_message);
+            printf("Error: %i - %s \n", error_packet->error_code, error_packet->error_message);
             return -1;
         }
         if (data_packet == NULL) {

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "Packet_Manipulation/packets.h"
 
@@ -116,4 +117,52 @@ int handle_netascii_buf(uint8_t * data, int bytes_read, uint8_t * netascii_buf, 
         *excess_bytes = 0;
     }
     return send_bytes;
+}
+
+struct error_packet * determine_file_opening_error() {
+    char * reason;
+    int code;
+    switch (errno) {
+        case ENOENT:
+            printf("File not found\n");
+            reason = "File not found";
+            code = EC_FILE_NOT_FOUND;
+            break;
+        case EACCES:
+            printf("Permission denied\n");
+            reason = "Permission denied";
+            code = EC_ACCESS_VIOLATION;
+            break;
+        case ENOMEM:
+            printf("Insufficient memory\n");
+            reason = "Insufficient memory";
+            code = EC_ALLOCATION_EXCEEDED;
+            break;
+        case EINVAL:
+            printf("Invalid argument\n");
+            reason = "Invalid argument";
+            code = EC_UNKNOWN_TRANSFER_ID;
+            break;
+        case EBUSY:
+            printf("Device or resource busy\n");
+            reason = "Device or resource busy";
+            code = EC_ALLOCATION_EXCEEDED;
+            break;
+        case EIO:
+            printf("Input/output error\n");
+            reason = "Input/output error";
+            code = EC_NOT_DEFINIED;
+            break;
+        case ENXIO:
+            printf("No such device or address\n");
+            reason = "No such device or address";
+            code = EC_NOT_DEFINIED;
+            break;
+        default:
+            printf("Unknown error\n");
+            reason = "Unknown error";
+            code = EC_NOT_DEFINIED;
+            break;
+    }
+    return build_error_packet(code, reason);
 }

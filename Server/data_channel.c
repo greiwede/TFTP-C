@@ -43,7 +43,7 @@ void * handle_request(void * request_params) {
                 printf("Unknown error occured receiving request");
                 return NULL;
             }
-            printf("Error: %i - %s", error_packet->error_code, error_packet->error_message);
+            printf("Error: %i - %s \n", error_packet->error_code, error_packet->error_message);
             return NULL;
     }
 
