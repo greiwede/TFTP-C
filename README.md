@@ -26,11 +26,12 @@ basic functionality
 ## Getting Started
 
 Steps:
-1. make sure that SERVER\_ADDRESS in Server/connection\_establishment.h has the correct IP
-    (default 192.168.178.21)
-2. make
-3. cd to Server/
-4. execute ./server\_appl --- make sure to be in admin mode for this (bindinig to port 69)
-5. cd to Client/
-6. execute ./client\_appl <server-ip>
-7. follow instructions on ./client\_appl console
+1. make
+2. cd to Server/
+3. execute ./server\_appl <server-ip>
+    --- make sure to be in admin mode for this (bindinig to port 69)
+    --- the server-IP is optional, the default value is 127.0.0.1
+4. cd to Client/
+5. execute ./client\_appl <server-ip>
+    --- the server-IP is optional, the default value is 127.0.0.1
+6. follow instructions on ./client\_appl console
