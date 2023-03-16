@@ -15,20 +15,34 @@
 #include "data_channel.h"
 #include "../Shared/Packet_Manipulation/read_packets.h"
 #include "../Shared/Packet_Manipulation/packets.h"
-#include "../Shared//Data_Flow/receive_data.h"
+#include "../Shared/Data_Flow/receive_data.h"
 
-int main() {
+int main(int argc, char *argv[]) {
     int control_socket;
     ssize_t recv_len;
     struct socket_meta * control_socket_information = malloc(sizeof(struct socket_meta));
+
+    in_addr_t addr;
+    // read in addr
+    if (argc >= 2) {
+        if (inet_pton(AF_INET, argv[1], &addr) == 1) {
+        } else {
+            printf("%s is not a valid IPv4 address\n", argv[1]);
+            return -1;
+        }
+    } else {
+        addr = inet_addr("127.0.0.1");
+        printf("No IP-Adress given, so localhost is beeing used \n");
+    }
 
     if ((control_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         printf("couldn't create socket \n");
         return -1;
     }
+
     control_socket_information->socket = &control_socket;
 
-    if (bind_control_socket(control_socket) == -1) {
+    if (bind_control_socket(control_socket, addr) == -1) {
         return -1;
     }
 

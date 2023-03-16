@@ -15,14 +15,18 @@
 
 int main(int argc, char *argv[]) {
     in_addr_t addr;
-
     // read in addr
     if (argc >= 2) {
-        addr = inet_addr(argv[1]);
+        if (inet_pton(AF_INET, argv[1], &addr) == 1) {
+        } else {
+            printf("%s is not a valid IPv4 address\n", argv[1]);
+            return -1;
+        }
     } else {
         addr = inet_addr("127.0.0.1");
-        printf("Given server address was invalid - %i \n", errno);
+        printf("No IP-Adress given, so localhost is beeing used \n");
     }
+
 
 
     struct sockaddr_in server_control_addr;
