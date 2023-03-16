@@ -28,10 +28,10 @@ basic functionality
 Steps:
 1. make
 2. cd to Server/
-3. execute ./server\_appl <server-ip>
-    --- make sure to be in admin mode for this (bindinig to port 69)
+3. execute ./server\_appl <server-ip> /
+    --- make sure to be in admin mode for this (bindinig to port 69) \
     --- the server-IP is optional, the default value is 127.0.0.1
 4. cd to Client/
-5. execute ./client\_appl <server-ip>
+5. execute ./client\_appl <server-ip> <br />
     --- the server-IP is optional, the default value is 127.0.0.1
 6. follow instructions on ./client\_appl console
