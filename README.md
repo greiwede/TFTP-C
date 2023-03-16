@@ -28,7 +28,7 @@ basic functionality
 Steps:
 1. make
 2. cd to Server/
-3. execute ./server\_appl <server-ip> /
+3. execute ./server\_appl <server-ip> <br />
     --- make sure to be in admin mode for this (bindinig to port 69) \
     --- the server-IP is optional, the default value is 127.0.0.1
 4. cd to Client/
