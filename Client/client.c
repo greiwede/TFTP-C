@@ -71,7 +71,6 @@ int main(int argc, char *argv[]) {
                 == -1) {
             printf("Problem sending stuff: %i \n", errno);
 		}
-        printf("trauriger katzen blick\n");
 
         // TODO:
         // Host A sends a request to host B. Somewhere in the network, the request packet is
@@ -86,7 +85,7 @@ int main(int argc, char *argv[]) {
         if (packet->opcode == OPCODE_RRQ) {
             receive_file(packet, data_socket_information);
         } else {
-            uint8_t * buf = malloc(sizeof(uint8_t) * ACK_PACKET_LENGTH);
+            uint8_t * buf = malloc(sizeof(uint8_t) * PACKET_MAX_LENGTH);
             ssize_t received_bytes;
             if ((received_bytes = receive_buffer(data_socket_information, buf, PACKET_MAX_LENGTH))
                     == -1) {
