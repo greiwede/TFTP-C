@@ -20,9 +20,6 @@ void receive_file(struct request_packet * request, struct socket_meta * socket_i
     uint8_t * buf;
     uint16_t block_number;
 
-    uint8_t last_char;
-    int data_length;
-
     if (strcmp(request->mode, MODE_NETASCII) == 0) {
         fd = fopen(request->file_name, "w");
     } else {
@@ -41,13 +38,14 @@ void receive_file(struct request_packet * request, struct socket_meta * socket_i
     data = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
     buf = malloc(sizeof(uint8_t) * PACKET_MAX_LENGTH);
 
-    block_number = 1; // actual data packets start with ACK 1
+    block_number = 1;
+    uint8_t last_char;
     do {
         if ((data_packet = receive_packet(block_number, socket_information, buf)) == NULL) {
-            printf("Abort receiving file \n");
             return;
         }
         if (strcmp(request->mode, MODE_NETASCII) == 0) {
+            printf("Converting from netascii \n");
             int new_length = buf_from_netascii(
                     data_packet->data,
                     data_packet->data_length,
@@ -57,13 +55,12 @@ void receive_file(struct request_packet * request, struct socket_meta * socket_i
             fwrite(data_packet->data, 1, data_packet->data_length, fd);
         }
         block_number++;
-        data_length = data_packet->data_length;
-        free_data_packet(data_packet);
-    } while (data_length == 512);
-    printf("file received \n");
+        printf("Received data length: %i \n", data_packet->data_length);
+    } while (data_packet->data_length == 512);
     fclose(fd);
     free(data);
     free(buf);
+    printf("file received \n");
 }
 
 struct data_packet * receive_packet(
@@ -79,7 +76,7 @@ struct data_packet * receive_packet(
     int times_resent;
 
     ack_packet = build_ack_packet(block_number);
-    printf("block no: %i \n", ack_packet->block_no);
+    printf("ack_packet block no: %i \n", ack_packet->block_no);
     packet_meta = build_ack_frame(ack_packet);
     times_resent = 0;
     do {
@@ -113,13 +110,7 @@ struct data_packet * receive_packet(
         }
         times_resent++;
     } while (recv_bytes >= 0 && times_resent < MAX_RETRANSMITS);
-
-    if (times_resent == MAX_RETRANSMITS && data_packet == NULL) {
-        printf("Maximum retransmits exceeded");
-    }
-
     free_packet_meta(packet_meta);
-    free_ack_packet(ack_packet);
 
     return data_packet;
 }

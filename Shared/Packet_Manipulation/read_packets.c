@@ -40,10 +40,12 @@ struct request_packet * convert_buf_to_request_packet(uint8_t * buf, ssize_t rec
     offset += OPCODE_LENGTH;
     strings = (char *) buf;
     first_string = strtok(strings + offset, "0");
-    request->file_name = first_string;
+    request->file_name = malloc(strlen(first_string));
+    memcpy(request->file_name, first_string, strlen(first_string));
     offset += strlen(first_string) + ZERO_BYTE_LENGTH;
     second_string = strtok(strings + offset, "0");
-    request->mode = second_string;
+    request->mode = malloc(strlen(second_string));
+    memcpy(request->mode, second_string, strlen(second_string));
     return request;
 }
 
@@ -101,6 +103,7 @@ struct error_packet * convert_buf_to_error_packet(uint8_t * buf, ssize_t receive
     int packet_type;
     struct error_packet * error_packet;
     int offset;
+    char * error_message;
 
     if (received_bytes < ERROR_PACKET_MIN_LENGTH) {
         return NULL;
@@ -116,7 +119,9 @@ struct error_packet * convert_buf_to_error_packet(uint8_t * buf, ssize_t receive
     offset += OPCODE_LENGTH;
     error_packet->error_code = uint8_buf_to_uint16(buf + offset);
     offset += ERROR_CODE_LENGTH;
-    error_packet->error_message = strtok((char *) buf + offset, "0");
+    error_message = strtok((char *) buf + offset, "0");
+    error_packet->error_message = malloc(strlen(error_message));
+    memcpy(error_packet->error_message, error_message, strlen(error_message));
 
     return error_packet;
 }

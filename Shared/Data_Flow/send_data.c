@@ -25,13 +25,12 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
     uint8_t * excess_queue;
     uint16_t block_number;
 
-    printf("mode: %s \n", request->mode);
-
     if (strcmp(request->mode, MODE_NETASCII) == 0) {
         fd = fopen(request->file_name, "r");
     } else {
         fd = fopen(request->file_name, "rb");
     }
+
     if (fd == NULL) {
         printf("Failed to open file - ");
         struct error_packet * error_packet = determine_file_opening_error();
@@ -42,46 +41,71 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
         return;
     }
 
-    data = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
     buf = malloc(sizeof(uint8_t) * PACKET_MAX_LENGTH);
+    data = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
+    // read bytes from file are converted to netascii mode
+    // size is 2 * DATA_MAX_LENGTH length because every char could be <CR> and thus replaced by
+    // <CR><NUL>
     netascii_buf = malloc(sizeof(uint8_t) * 2 * DATA_MAX_LENGTH);
-    block_number = 1;
+    // stores bytes that do not fit into data packet after netascii conversion
+    excess_queue = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
 
     excess_bytes = 0;
-    excess_queue = malloc(sizeof(uint8_t) * DATA_MAX_LENGTH);
+    block_number = 1;
     while ((bytes_read = fread(data, 1, DATA_MAX_LENGTH - excess_bytes, fd))
             == DATA_MAX_LENGTH - excess_bytes) {
-        printf("bytes read file %zu \n", bytes_read);
         if (strcmp(request->mode, MODE_NETASCII) == 0) {
             bytes_read = handle_netascii_buf(data, bytes_read, netascii_buf, excess_queue, &excess_bytes);
         }
         data_packet = build_data_packet(block_number, data, bytes_read);
         if (send_packet(data, data_packet, block_number, socket_information, buf) == -1) {
+            printf("Abort sending file \n");
+            free(buf);
+            free(excess_queue);
+            free(data);
+            free(netascii_buf);
             return;
         }
-        printf("block no %i\n", block_number);
+        printf("block no: %i\n", block_number);
         block_number++;
+
+        free_data_packet(data_packet);
     }
     fclose(fd);
     if (strcmp(request->mode, MODE_NETASCII) == 0) {
         bytes_read = handle_netascii_buf(data, bytes_read, netascii_buf, excess_queue, &excess_bytes);
-        printf("Bytes read: %zu \n", bytes_read);
     }
     data_packet = build_data_packet(block_number, data, bytes_read);
+    printf("block no: %i\n", block_number);
     if (send_packet(data, data_packet, block_number, socket_information, buf) == -1) {
+        printf("Abort sending file \n");
+        free(buf);
+        free(excess_queue);
+        free(data);
+        free(netascii_buf);
         return;
     }
-    printf("block no %i\n", block_number);
     if (bytes_read == DATA_MAX_LENGTH) {
         block_number++;
         data_packet = build_data_packet(block_number, excess_queue, excess_bytes);
+        printf("block no: %i\n", block_number);
 
-        printf("excess bytes: %i \n", excess_bytes);
         if (send_packet(data, data_packet, block_number, socket_information, buf) == -1) {
+            printf("Abort sending file \n");
+            free(buf);
+            free(excess_queue);
+            free(data);
+            free(netascii_buf);
             return;
         }
+        free_data_packet(data_packet);
     }
     printf("file sent \n");
+
+    free(buf);
+    free(excess_queue);
+    free(data);
+    free(netascii_buf);
 }
 
 int send_packet(
@@ -122,16 +146,22 @@ int send_packet(
                 return -1;
             }
             printf("Error: %i - %s \n", error_packet->error_code, error_packet->error_message);
+            free_error_packet(error_packet);
             return -1;
-        }
-        if (data_packet == NULL) {
         }
 
         if (ack_packet->block_no != block_number) {
             recv_bytes = -1;
         }
         times_resent++;
+
+        free_ack_packet(ack_packet);
     } while (recv_bytes >= 0 && times_resent < MAX_RETRANSMITS);
+
+    if (times_resent == MAX_RETRANSMITS && recv_bytes < 0) {
+        printf("Maximum retransmits exceeded");
+    }
+
     free_packet_meta(packet_meta);
     return 1;
 }

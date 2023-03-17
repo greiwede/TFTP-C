@@ -35,7 +35,6 @@ int buf_to_netascii(uint8_t * data, int data_length, uint8_t * netascii_buf) {
         index_netascii++;
         index_data++;
     }
-    printf("Replaced chars: %i \n", replaced);
 
     return index_netascii;
 }
@@ -87,7 +86,6 @@ int buf_from_netascii(uint8_t * buf, int buf_length, uint8_t * last_char) {
         buf_index++;
         local_index++;
     }
-    printf("Replaced chars %i \n", replaced);
 
     // safe last_char for checking split with next packet
     *last_char = buf[buf_length - 1];
@@ -101,10 +99,17 @@ int buf_from_netascii(uint8_t * buf, int buf_length, uint8_t * last_char) {
     return local_index;
 }
 
-int handle_netascii_buf(uint8_t * data, int bytes_read, uint8_t * netascii_buf, uint8_t * excess_queue, int * excess_bytes) {
+int handle_netascii_buf(
+        uint8_t * data,
+        int bytes_read,
+        uint8_t * netascii_buf,
+        uint8_t * excess_queue,
+        int * excess_bytes) {
+
     int netascii_buf_length;
     int send_bytes;
     int available_bytes = DATA_MAX_LENGTH - *excess_bytes;
+
     netascii_buf_length = buf_to_netascii(data, bytes_read, netascii_buf);
     memcpy(data, excess_queue, *excess_bytes);
     memcpy(data + *excess_bytes, netascii_buf, available_bytes);

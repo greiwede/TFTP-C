@@ -14,13 +14,16 @@ uint16_t inquire_request_type() {
     unsigned char requested_mode;
     int input = -1;
 
+    // conventional stdin clearing methods did not work
     if (clear_stdin_for_getchar() == 0) {
         printf("Failed inquiring request type, please restart \n");
         return 0;
     }
+
     do {
         printf("Specify request type [1 - read, 2 - write]: \n");
         requested_mode = getchar();
+        // if n chars were put in, clear n - 1 remaining chars
         while ((input = getchar()) != '\n' && input != EOF);
     } while (requested_mode != '1' && requested_mode != '2');
 
@@ -49,6 +52,7 @@ char * inquire_mode() {
     unsigned char requested_mode;
     int input = -1;
 
+    // conventional stdin clearing methods did not work
     if (clear_stdin_for_getchar() == 0) {
         printf("Failed inquiring mode, please restart \n");
         return 0;
@@ -56,6 +60,7 @@ char * inquire_mode() {
     do {
         printf("Specify transfer mode: [1 - NETASCII, 2 - OCTET]: \n");
         requested_mode = getchar();
+        // if n chars were put in, clear n - 1 remaining chars
         while ((input = getchar()) != '\n' && input != EOF);
     } while (requested_mode != '1' && requested_mode != '2');
 
@@ -64,7 +69,6 @@ char * inquire_mode() {
     } else {
         return MODE_OCTET;
     }
-    return MODE_NETASCII;
 }
 
 
@@ -100,11 +104,12 @@ int clear_stdin_for_getchar(){
         printf("Error setting stdin nonblocking \n");
         return 0;
     }
-    input = getchar();
+    input = getchar(); // nonblocking important because stdin could be empty
     if (set_stdin_blocking() == -1) {
         printf("Error setting stdin blocking \n");
         return 0;
     }
+    // clear out rest of stdin
     while ((input != '\n' && input != EOF) && input != -1) {
         input = getchar();
     };

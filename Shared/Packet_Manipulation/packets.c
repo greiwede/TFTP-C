@@ -48,7 +48,8 @@ data_packet * build_data_packet(uint16_t block_no, uint8_t * data, int data_leng
     struct data_packet * packet = malloc(sizeof(struct data_packet));
     packet->opcode = OPCODE_DATA;
     packet->block_no = block_no;
-    packet->data = data;
+    packet->data = malloc(data_length);
+    memcpy(packet->data, data, data_length);
     packet->data_length = data_length;
     return packet;
 }

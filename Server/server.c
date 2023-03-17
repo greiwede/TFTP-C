@@ -18,12 +18,12 @@
 #include "../Shared/Data_Flow/receive_data.h"
 
 int main(int argc, char *argv[]) {
+    // control socket handles incoming requests
     int control_socket;
-    ssize_t recv_len;
     struct socket_meta * control_socket_information = malloc(sizeof(struct socket_meta));
 
     in_addr_t addr;
-    // read in addr
+    // read in server addr
     if (argc >= 2) {
         if (inet_pton(AF_INET, argv[1], &addr) == 1) {
         } else {
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         }
     } else {
         addr = inet_addr("127.0.0.1");
-        printf("No IP-Adress given, so localhost is beeing used \n");
+        printf("No IP-Adress given, so localhost is being used \n");
     }
 
     if ((control_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
@@ -41,7 +41,6 @@ int main(int argc, char *argv[]) {
     }
 
     control_socket_information->socket = &control_socket;
-
     if (bind_control_socket(control_socket, addr) == -1) {
         return -1;
     }
@@ -49,8 +48,11 @@ int main(int argc, char *argv[]) {
     while (1) {
         struct sockaddr_in * client_addr = malloc(sizeof(struct sockaddr_in));
         int client_length = sizeof(*client_addr);
+
+        ssize_t recv_len;
         uint8_t * buf = malloc(PACKET_MAX_LENGTH);
 
+        // threading important to serve multiple clients at once
         pthread_t data_thread;
         int thread_no;
         struct request_params request_params;
@@ -78,4 +80,5 @@ int main(int argc, char *argv[]) {
     }
 
     close(control_socket);
+    free(control_socket_information);
 }

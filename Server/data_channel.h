@@ -10,6 +10,7 @@ struct request_params {
     int client_length;
 };
 
+// void pointers as is designed to be threading
 void * handle_request(void * request_params);
 
 #endif

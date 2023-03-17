@@ -14,8 +14,22 @@
 #include "../Shared/Packet_Manipulation/packets.h"
 
 int main(int argc, char *argv[]) {
+
+    // server address for requests
+    struct sockaddr_in server_control_addr;
+    int server_control_length = sizeof(server_control_addr);
+    struct socket_meta * control_socket_information = malloc(sizeof(struct socket_meta));
+
+    // server address for data channel
+    struct sockaddr_in server_data_addr;
+    int server_data_length = sizeof(server_control_addr);
+    struct socket_meta * data_socket_information = malloc(sizeof(struct socket_meta));
+
+    // client socket
+    int socket_fd;
+
+    // inquire server IP
     in_addr_t addr;
-    // read in addr
     if (argc >= 2) {
         if (inet_pton(AF_INET, argv[1], &addr) == 1) {
         } else {
@@ -24,18 +38,8 @@ int main(int argc, char *argv[]) {
         }
     } else {
         addr = inet_addr("127.0.0.1");
-        printf("No IP-Adress given, so localhost is beeing used \n");
+        printf("No IP-Adress given, so localhost is being used \n");
     }
-
-
-
-    struct sockaddr_in server_control_addr;
-    int server_control_length = sizeof(server_control_addr);
-    struct sockaddr_in server_data_addr;
-    int server_data_length = sizeof(server_control_addr);
-    int socket_fd;
-    struct socket_meta * control_socket_information = malloc(sizeof(struct socket_meta));
-    struct socket_meta * data_socket_information = malloc(sizeof(struct socket_meta));
 
     if ((socket_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
         printf("couldn't build socket");
@@ -76,26 +80,16 @@ int main(int argc, char *argv[]) {
             printf("Problem sending stuff: %i \n", errno);
 		}
 
-        // TODO:
-        // Host A sends a request to host B. Somewhere in the network, the request packet is
-        // duplicated, and as a result two acknowledgments are returned to host A, with different
-        // TID's chosen on host B in response to the two requests.  When the first response
-        // arrives, host A continues the connection.  When the second response to the request
-        // arrives, it should be rejected, but there is no reason to terminate the first
-        // connection. Therefore, if different TID's are chosen for the two connections on host B
-        // and host A checks the source TID's of the messages it receives, the first connection can
-        // be maintained while the second is rejected by returning an error packet.
-
         if (packet->opcode == OPCODE_RRQ) {
             receive_file(packet, data_socket_information);
-        } else {
+        } else { // automatically WRQ
             uint8_t * buf = malloc(sizeof(uint8_t) * PACKET_MAX_LENGTH);
             ssize_t received_bytes;
+            // receive ACK #0 -> confirmation that server is ready to receive data
             if ((received_bytes = receive_buffer(data_socket_information, buf, PACKET_MAX_LENGTH))
                     == -1) {
                 printf("Couldn't establish connection to server \n");
             }
-            printf("received bytes: %zu \n", received_bytes);
             struct ack_packet * ack = convert_buf_to_ack_packet(buf, received_bytes);
             if (ack != NULL) {
                 if (ack->block_no == 0) {
@@ -120,4 +114,5 @@ int main(int argc, char *argv[]) {
         free_packet_meta(packet_meta);
     }
     free(control_socket_information);
+    free(data_socket_information);
 }
