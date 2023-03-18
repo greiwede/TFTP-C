@@ -1,3 +1,8 @@
+/**
+ * \file            client.c
+ * \brief           main method of the client
+ */
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <stdlib.h>

@@ -1,3 +1,7 @@
+/**
+ * \file            write_packets.h
+ * \brief           Prepare packets for sending header file
+ */
 #ifndef WRITE_PACKETS_H_
 #define WRITE_PACKETS_H_
 

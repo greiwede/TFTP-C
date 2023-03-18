@@ -1,3 +1,7 @@
+/**
+ * \file            connection_establishment.c
+ * \brief           Function to establish connections via sockets
+ */
 #include "connection_establishment.h"
 
 #include <stdio.h>
@@ -7,6 +11,11 @@
 
 #include "../Shared/Packet_Manipulation/packets.h"
 
+/**
+ * \brief           This function binds the control sockets
+ * \note            Control socket listens for incoming packets
+ * \return          returns int to check for errors
+ */
 int bind_control_socket(int control_socket, in_addr_t addr) {
     struct sockaddr_in server_addr;
 

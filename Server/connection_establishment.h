@@ -1,3 +1,7 @@
+/**
+ * \file            connection_establishment.h
+ * \brief           establish connections header file
+ */
 #ifndef WRITE_PACKETS_H_
 #define WRITE_PACKETS_H_
 

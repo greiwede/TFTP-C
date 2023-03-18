@@ -1,3 +1,7 @@
+/**
+ * \file            packets.h
+ * \brief           Build and free packets header file
+ */
 #ifndef PACKETS_H_
 #define PACKETS_H_
 
@@ -20,7 +24,9 @@
 #define ERROR_PACKET_MIN_LENGTH 5
 
 #define DATA_MAX_LENGTH 512
-
+/**
+* \brief           Enumeration for all valid opcodes
+*/
 typedef enum {
     OPCODE_RRQ   = 1,
     OPCODE_WRQ   = 2,
@@ -29,6 +35,9 @@ typedef enum {
     OPCODE_ERROR = 5,
 } OPCODE;
 
+/**
+* \brief           Enumeration for all error codes
+*/
 typedef enum {
     EC_NOT_DEFINIED = 0,
     EC_FILE_NOT_FOUND = 1,
@@ -52,11 +61,20 @@ typedef enum {
 // deprecated:
 #define MODE_MAIL "mail"
 
+/**
+* \brief            Struct for a Pointer to a packet and the lentgh of the packet
+*/
 typedef struct packet_meta {
     uint8_t * ptr;
     int length;
 } packet_meta;
 
+
+//TODO why packed?
+/**
+* \brief            Struct for request packets
+* \note             has to be packed to that
+*/
 typedef struct __attribute__((__packed__)) request_packet {
     uint16_t opcode;
     char * file_name;
@@ -64,6 +82,7 @@ typedef struct __attribute__((__packed__)) request_packet {
     // note: mode does not need to be deallocated as its a pointer to a static string
 } request_packet;
 
+//TODO: documentation copy from struct
 typedef struct __attribute__((__packed__)) data_packet {
     uint16_t opcode;
     uint16_t block_no;

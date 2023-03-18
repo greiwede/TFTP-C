@@ -1,3 +1,7 @@
+/**
+ * \file            send_data.c
+ * \brief           Functions to send a file/packet/buffer
+ */
 #include "send_data.h"
 
 #include <arpa/inet.h>
@@ -14,6 +18,11 @@
 #include "../Packet_Manipulation/write_packets.h"
 #include "../Packet_Manipulation/read_packets.h"
 
+/**
+ * \brief           This function reads a file in and sends it
+ * \param[in]       request: Request packet to extract information like filename and mode
+ * \param[in]       socket_information: Client socket information to receive data
+ */
 void send_file(struct request_packet * request, struct socket_meta * socket_information) {
     FILE * fd;
     ssize_t bytes_read;
@@ -108,6 +117,15 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
     free(netascii_buf);
 }
 
+/**
+ * \brief           This function sends a packet and wait for the ACK to check if the client
+ *                  received it, in case of a timeout the packet will be retransmit until the limit
+ *                  is exceeded
+ * \param[in]       block_number: the block number of the nect packet
+ * \param[in]       socket_information: Client socket information to receive data
+ * \param[in]       ack_buf: Pointer to buffer to store ack_packet (or error_packet)
+ * \return          returns int to check for errors
+ */
 int send_packet(
         uint8_t * data,
         struct data_packet * data_packet,
@@ -166,6 +184,13 @@ int send_packet(
     return 1;
 }
 
+/**
+ * \brief           This function send data from a buffer over the socket
+ * \param[in]       socket_information: Client socket information to receive data
+ * \param[in]       buf: Pointer to buffer where data is stored
+ * \param[in]       buf_length: size of buffer (size of data that should be send)
+ * \return          returns the number of sent bytes
+ */
 int send_buffer(
         struct socket_meta * socket_information,
         uint8_t * buf,

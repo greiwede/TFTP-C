@@ -1,3 +1,6 @@
+/**
+ * \file            read_packets.h
+ * \brief           Handle incoming packets header */
 #ifndef READ_PACKETS_H_
 #define READ_PACKETS_H_
 

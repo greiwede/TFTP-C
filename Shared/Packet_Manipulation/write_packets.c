@@ -1,3 +1,7 @@
+/**
+ * \file            write_packets.c
+ * \brief           Prepare packets for sending
+ */
 #include "write_packets.h"
 
 #include <string.h>
@@ -8,6 +12,11 @@
 
 #include "../utils.h"
 
+/**
+ * \brief           build a request frame from the information given as a parameter
+ * \param[in]       information: necessary information to build request packet
+ * \return          Packet Metadaten: the Pointer to the frame and the length of it
+ */
 packet_meta * build_request_frame(request_packet * information) {
     int file_name_length = strlen(information->file_name);
     int mode_length = strlen(information->mode);
@@ -32,6 +41,11 @@ packet_meta * build_request_frame(request_packet * information) {
     return meta;
 }
 
+/**
+ * \brief           build a data frame from the information given as a parameter
+ * \param[in]       information: necessary information to build data packet
+ * \return          Packet Metadaten: the Pointer to the frame and the length of it
+ */
 packet_meta * build_data_frame(data_packet * information) {
     struct packet_meta * meta = malloc(sizeof(struct packet_meta));
     meta->length = OPCODE_LENGTH + BLOCK_NO_LENGTH + information->data_length;
@@ -47,6 +61,11 @@ packet_meta * build_data_frame(data_packet * information) {
     return meta;
 }
 
+/**
+ * \brief           build an acknowledge frame from the information given as a parameter
+ * \param[in]       information: necessary information to build acknowledge packet
+ * \return          Packet Metadaten: the Pointer to the frame and the length of it
+ */
 packet_meta * build_ack_frame(ack_packet * information) {
     struct packet_meta * meta = malloc(sizeof(struct packet_meta));
     meta->length = OPCODE_LENGTH + BLOCK_NO_LENGTH;
@@ -60,6 +79,11 @@ packet_meta * build_ack_frame(ack_packet * information) {
     return meta;
 }
 
+/**
+ * \brief           build an error frame from the information given as a parameter
+ * \param[in]       information: necessary information to build error packet
+ * \return          Packet Metadaten: the Pointer to the frame and the length of it
+ */
 packet_meta * build_error_frame(error_packet * information) {
     int error_message_length = strlen(information->error_message);
 

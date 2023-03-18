@@ -1,3 +1,7 @@
+/**
+ * \file            data_channel.c
+ * \brief           Data channel to transmit/retreive data in a thread
+ */
 #include "data_channel.h"
 
 #include <stdio.h>
@@ -16,6 +20,12 @@
 #include "../Shared/Data_Flow/send_data.h"
 #include "../Shared/Data_Flow/receive_data.h"
 
+/**
+ * \brief           This function handles the incoming request and send/retreive the data
+ * \param[in]       request_params: void Pointer (because of threading) with all necassary
+ *                  information
+ * \return          returns NULL when finished
+ */
 void * handle_request(void * request_params) {
     int data_socket;
     struct socket_meta * socket_information;

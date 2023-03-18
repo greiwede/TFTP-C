@@ -1,3 +1,7 @@
+/**
+ * \file            user_interaction.c
+ * \brief           function to request input from user are located here
+ */
 #define STR2(x) #x
 #define STR(X) STR2(X)
 
@@ -10,6 +14,10 @@
 
 #include "../Shared/Packet_Manipulation/packets.h"
 
+/**
+ * \brief           This function polls the user the request type
+ * \return          returns Opcode for RRQ or WRQ
+ */
 uint16_t inquire_request_type() {
     unsigned char requested_mode;
     int input = -1;
@@ -34,6 +42,11 @@ uint16_t inquire_request_type() {
     }
 }
 
+/**
+ * \brief           This function polls the requested file name
+ * \note            if the request type is WRQ, the function checks if file exists
+ * \return          returns file name
+ */
 char * inquire_file_name(uint16_t request_type) {
     // XXX: look at possible buffer overflows
     char * file_name = malloc(MAX_FILE_NAME_LENGTH);
@@ -48,6 +61,10 @@ char * inquire_file_name(uint16_t request_type) {
     return file_name;
 }
 
+/**
+ * \brief           This function polls the user the request type
+ * \return          returns the choosen mode
+ */
 char * inquire_mode() {
     unsigned char requested_mode;
     int input = -1;
@@ -72,6 +89,10 @@ char * inquire_mode() {
 }
 
 
+/**
+ * \brief           This function sets the stdin nonblocking
+ * \return          returns int to check for errors
+ */
 int set_stdin_nonblocking() {
     int flags = fcntl(STDIN_FILENO, F_GETFL);
     if (flags == -1) {
@@ -85,6 +106,10 @@ int set_stdin_nonblocking() {
 }
 
 
+/**
+ * \brief           This function sets the stdin blocking
+ * \return          returns int to check for errors
+ */
 int set_stdin_blocking() {
     int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
     if (flags == -1) {
@@ -98,6 +123,10 @@ int set_stdin_blocking() {
 }
 
 
+/**
+ * \brief           This function clears all elements from stdin
+ * \return          returns int to check for errors
+ */
 int clear_stdin_for_getchar(){
     int input = -1;
     if (set_stdin_nonblocking() == -1) {

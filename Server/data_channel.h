@@ -1,3 +1,7 @@
+/**
+ * \file            data_channel.h
+ * \brief           Data channel header file
+ */
 #ifndef DATA_CHANNEL_H_
 #define DATA_CHANNEL_H_
 

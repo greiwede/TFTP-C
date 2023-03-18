@@ -1,3 +1,8 @@
+/**
+ * \file            file_manipulation.c
+ * \brief           Everything relating to Netascii conversion and
+ *                  determining the error code and message
+ */
 #include "file_manipulation.h"
 
 #include <stdio.h>
@@ -7,6 +12,14 @@
 
 #include "Packet_Manipulation/packets.h"
 
+/**
+ * \brief           convert a given buffer to netascii mode and stores it in another buffer
+ * \note            Please make sure that netascii_buf is at least double the size of data (buffer)
+ * \param[in]       data: buffer that should be converted to netascii
+ * \param[in]       data_length: size of data_buffer
+ * \param[in]       netascii_buf: buffer where result is stored
+ * \return          returns the size of the data after the netascii conversion
+ */
 int buf_to_netascii(uint8_t * data, int data_length, uint8_t * netascii_buf) {
     int index_netascii;
     int index_data;
@@ -39,6 +52,16 @@ int buf_to_netascii(uint8_t * data, int data_length, uint8_t * netascii_buf) {
     return index_netascii;
 }
 
+//TODO: how do you call a buffer which is not in netascii mode? origin mode??
+/**
+ * \brief           convert a given buffer in netascii mode back to origin mode and stores the last
+ *                  character of the buffer to variable to check whether <CR><LF> or <CR><NULL>
+ *                  were split in between packets
+ * \param[in]       buf: buffer that should be converted from netascii
+ * \param[in]       buf_length: size of buf
+ * \param[in]       last_char: Pointer to a variable to store the last char of the buffer
+ * \return          returns the size of the data after the conversion
+ */
 int buf_from_netascii(uint8_t * buf, int buf_length, uint8_t * last_char) {
     int buf_index;
     uint8_t * local_buf;
@@ -99,6 +122,18 @@ int buf_from_netascii(uint8_t * buf, int buf_length, uint8_t * last_char) {
     return local_index;
 }
 
+/**
+ * \brief           function that fills buffer with excess queue (if it contains elements) and the
+ *                  to netascii mode converted data
+ * \note            if data don't fit completly into the buffer, the rest will be stored into the
+ *                  excess queue and the number of these elements in excess bytes
+ * \param[in]       data: buffer with data before conversion
+ * \param[in]       bytes_read: number of bytes that are stored in data
+ * \param[in]       netascii_buf: buffer to store temporarly to netascii converted data
+ * \param[in]       excess_queue: buffer for excess bytes after coversion
+ * \param[in]       excess_bytes: Pointer to number of excess bytes
+ * \return          returns bytes that should be send
+ */
 int handle_netascii_buf(
         uint8_t * data,
         int bytes_read,
@@ -124,6 +159,10 @@ int handle_netascii_buf(
     return send_bytes;
 }
 
+/**
+ * \brief           checks errno and determine error code and message based on that
+ * \return          error packet
+ */
 struct error_packet * determine_file_opening_error() {
     char * reason;
     int code;

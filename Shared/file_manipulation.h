@@ -1,8 +1,13 @@
+/**
+ * \file            file_manipulation.h
+ * \brief           file manipulation header file
+ */
 #ifndef FILE_MANIPULATION_H_
 #define FILE_MANIPULATION_H_
 
 #include <stdint.h>
 
+//TODO: warum here kein enum??
 #define ASCII_NL '\n'
 #define ASCII_CR '\x0d'
 #define ASCII_LF '\x0a'
@@ -10,6 +15,7 @@
 #define ASCII_NUL '\x00'
 #define ASCII_CRNUL '\x0d' + '\x00'
 
+// TODO: haben wir das umgesetzt? netascii funktioniert ja
 // NOTE:
 // for netascii mode, each character has 7 bit, one bit is always 0
 

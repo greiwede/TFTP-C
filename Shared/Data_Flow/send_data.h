@@ -1,3 +1,7 @@
+/**
+ * \file            send_data.h
+ * \brief           Send file/packet/buffer header file
+ */
 #ifndef SEND_DATA_H_
 #define SEND_DATA_H_
 

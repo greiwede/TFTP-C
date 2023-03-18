@@ -1,3 +1,7 @@
+/**
+ * \file            receive_data.c
+ * \brief           Functions to receive a file/packet/buffer
+ */
 #include "receive_data.h"
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -13,6 +17,12 @@
 #include "../file_manipulation.h"
 #include "send_data.h"
 
+//TODO: is socket info client socket?
+/**
+ * \brief           This function receive and write a file
+ * \param[in]       request: Request packet to extract information like filename and mode
+ * \param[in]       socket_information: Client socket information to receive data
+ */
 void receive_file(struct request_packet * request, struct socket_meta * socket_information) {
     FILE * fd;
     struct data_packet * data_packet;
@@ -66,6 +76,15 @@ void receive_file(struct request_packet * request, struct socket_meta * socket_i
     free(buf);
 }
 
+/**
+ * \brief           This function receive a packet and check if the block number is equal to the
+ *                  expected one and sends and ack_packet, if not the function wait for the packet
+ *                  with the right block number until max retransmits exceeded
+ * \param[in]       block_number: the expected block number
+ * \param[in]       socket_information: Client socket information to receive data
+ * \param[in]       data_buf: Pointer to buffer to store data
+ * \return          returns received (and in struct converted) data packet, or NULL in error case
+ */
 struct data_packet * receive_packet(
         uint16_t block_number,
         struct socket_meta * socket_information,
@@ -124,6 +143,13 @@ struct data_packet * receive_packet(
     return data_packet;
 }
 
+/**
+ * \brief           This function receive data over the socket and stores it in a buffer
+ * \param[in]       socket_information: Client socket information to receive data
+ * \param[in]       buf: Pointer to buffer where received data should be stored
+ * \param[in]       buf_length: size of buffer to just listen for that size of data on the socket
+ * \return          returns the number of received bytes
+ */
 int receive_buffer(
         struct socket_meta * socket_information,
         uint8_t * buf,
@@ -144,6 +170,11 @@ int receive_buffer(
     return recv_bytes;
 }
 
+/**
+ * \brief           This function set receiving timout for socket
+ * \param[in]       socket_fd: socket file descriptor
+ * \return          returns int to check for errors
+ */
 int set_receiving_timeout(int socket_fd) {
     struct timeval timeout;
     timeout.tv_sec = TIMEOUT_SECONDS;

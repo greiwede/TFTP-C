@@ -1,9 +1,16 @@
+/**
+ * \file            utils.h
+ * \brief           uint8_t/uint16_t conversion header file
+ */
 #ifndef UTILS_H_
 #define UTILS_H_
 
 #include <stdlib.h>
 #include <stdint.h>
 
+/**
+* \brief           struct for socket information
+*/
 typedef struct socket_meta {
     int * socket;
     struct sockaddr_in * address;

@@ -1,3 +1,7 @@
+/**
+ * \file            server.c
+ * \brief           main method of the server
+ */
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -76,7 +80,11 @@ int main(int argc, char *argv[]) {
         request_params.client_addr = client_addr;
         request_params.client_length = client_length;
 
-        thread_no = pthread_create(&data_thread, NULL, handle_request, (void *) &request_params);
+        thread_no = pthread_create(
+                &data_thread,
+                NULL,
+                handle_request,
+                (void *) &request_params);
     }
 
     close(control_socket);

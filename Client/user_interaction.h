@@ -1,3 +1,7 @@
+/**
+ * \file            user_interaction.h
+ * \brief           User interaction header file
+ */
 #ifndef USER_INTERACTION_H_
 #define USER_INTERACTION_H_
 

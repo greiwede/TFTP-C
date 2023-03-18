@@ -1,3 +1,7 @@
+/**
+ * \file            read_packets.c
+ * \brief           Handle incoming packets and convert them to the resulting struct
+ */
 #include "read_packets.h"
 
 #include <stdio.h>
@@ -7,6 +11,12 @@
 #include "packets.h"
 #include "../utils.h"
 
+
+/**
+ * \brief           extract the opcode of a frame
+ * \param[in]       frame: incoming data frame
+ * \return          the opcode of a frame
+ */
 int identify_packet_type(uint8_t * frame) {
     uint16_t opcode = ntohs(uint8_buf_to_uint16(frame));
     if (opcode >= 0 && opcode <= 5) {
@@ -17,6 +27,12 @@ int identify_packet_type(uint8_t * frame) {
 }
 
 
+/**
+ * \brief           convert a buffer to a request_packet struct
+ * \param[in]       buf: Pointer to a buffer, which is the base for the request packet
+ * \param[in]       received_bytes: size of the buffer
+ * \return          request_packet or NULL for invalid request_packets
+ */
 struct request_packet * convert_buf_to_request_packet(uint8_t * buf, ssize_t received_bytes) {
     int packet_type;
     struct request_packet * request;
@@ -49,6 +65,12 @@ struct request_packet * convert_buf_to_request_packet(uint8_t * buf, ssize_t rec
     return request;
 }
 
+/**
+ * \brief           convert a buffer to a data_packet struct
+ * \param[in]       buf: Pointer to a buffer, which is the base for the data packet
+ * \param[in]       received_bytes: size of the buffer
+ * \return          request_packet or NULL for invalid data_packets
+ */
 struct data_packet * convert_buf_to_data_packet(uint8_t * buf, ssize_t received_bytes) {
     int packet_type;
     struct data_packet * data_packet;
@@ -77,6 +99,12 @@ struct data_packet * convert_buf_to_data_packet(uint8_t * buf, ssize_t received_
     return data_packet;
 }
 
+/**
+ * \brief           convert a buffer to a ack_packet struct
+ * \param[in]       buf: Pointer to a buffer, which is the base for the acknowledge packet
+ * \param[in]       received_bytes: size of the buffer
+ * \return          request_packet or NULL for invalid ack_packets
+ */
 struct ack_packet * convert_buf_to_ack_packet(uint8_t * buf, ssize_t received_bytes) {
     int packet_type;
     struct ack_packet * ack_packet;
@@ -99,6 +127,12 @@ struct ack_packet * convert_buf_to_ack_packet(uint8_t * buf, ssize_t received_by
     return ack_packet;
 }
 
+/**
+ * \brief           convert a buffer to a error_packet struct
+ * \param[in]       buf: Pointer to a buffer, which is the base for the error packet
+ * \param[in]       received_bytes: size of the buffer
+ * \return          request_packet or NULL for invalid error_packets
+ */
 struct error_packet * convert_buf_to_error_packet(uint8_t * buf, ssize_t received_bytes) {
     int packet_type;
     struct error_packet * error_packet;
