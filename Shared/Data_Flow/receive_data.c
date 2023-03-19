@@ -17,11 +17,10 @@
 #include "../file_manipulation.h"
 #include "send_data.h"
 
-//TODO: is socket info client socket?
 /**
  * \brief           This function receive and write a file
  * \param[in]       request: Request packet to extract information like filename and mode
- * \param[in]       socket_information: Client socket information to receive data
+ * \param[in]       socket_information: communication partner socket information to receive data
  */
 void receive_file(struct request_packet * request, struct socket_meta * socket_information) {
     FILE * fd;

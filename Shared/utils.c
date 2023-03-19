@@ -19,13 +19,12 @@ void uint16_to_uint8_buf(uint16_t value, uint8_t * ptr) {
 }
 
 
-//TODO: warum ist return int und nicht uint16_t
 /**
  * \brief           convert two uint8_t to one uint16_t
  * \param[in]       value: Pointer to first uin8_t value that should be converted
  * \return          returns converted value
  */
-int uint8_buf_to_uint16(uint8_t * ptr) {
+uint16_t uint8_buf_to_uint16(uint8_t * ptr) {
     uint16_t value = 0;
     value += *(ptr);
     value += *(ptr + 1) << 8;

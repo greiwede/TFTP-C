@@ -21,7 +21,7 @@
 /**
  * \brief           This function reads a file in and sends it
  * \param[in]       request: Request packet to extract information like filename and mode
- * \param[in]       socket_information: Client socket information to receive data
+ * \param[in]       socket_information: communication partner socket information to receive data
  */
 void send_file(struct request_packet * request, struct socket_meta * socket_information) {
     FILE * fd;
@@ -64,7 +64,12 @@ void send_file(struct request_packet * request, struct socket_meta * socket_info
     while ((bytes_read = fread(data, 1, DATA_MAX_LENGTH - excess_bytes, fd))
             == DATA_MAX_LENGTH - excess_bytes) {
         if (strcmp(request->mode, MODE_NETASCII) == 0) {
-            bytes_read = handle_netascii_buf(data, bytes_read, netascii_buf, excess_queue, &excess_bytes);
+            bytes_read = handle_netascii_buf(
+                    data,
+                    bytes_read,
+                    netascii_buf,
+                    excess_queue,
+                    &excess_bytes);
         }
         data_packet = build_data_packet(block_number, data, bytes_read);
         if (send_packet(data, data_packet, block_number, socket_information, buf) == -1) {

@@ -70,10 +70,8 @@ typedef struct packet_meta {
 } packet_meta;
 
 
-//TODO why packed?
 /**
 * \brief            Struct for request packets
-* \note             has to be packed to that
 */
 typedef struct __attribute__((__packed__)) request_packet {
     uint16_t opcode;
@@ -82,7 +80,9 @@ typedef struct __attribute__((__packed__)) request_packet {
     // note: mode does not need to be deallocated as its a pointer to a static string
 } request_packet;
 
-//TODO: documentation copy from struct
+/**
+* \brief            Struct for data packets
+*/
 typedef struct __attribute__((__packed__)) data_packet {
     uint16_t opcode;
     uint16_t block_no;
@@ -90,11 +90,17 @@ typedef struct __attribute__((__packed__)) data_packet {
     int data_length; // cannot infer data length from uint8_t pointer
 } data_packet;
 
+/**
+* \brief            Struct for ack packets
+*/
 typedef struct __attribute__((__packed__)) ack_packet {
     uint16_t opcode;
     uint16_t block_no;
 } ack_packet;
 
+/**
+* \brief            Struct for error packets
+*/
 typedef struct __attribute__((__packed__)) error_packet {
     uint16_t opcode;
     uint16_t error_code;
