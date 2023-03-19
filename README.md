@@ -4,7 +4,7 @@ This is a [TFTP](https://www.rfc-editor.org/rfc/rfc1350) implementation.
 This implementation only runs on UNIX systems.
 
 ## Project Structure
-The project is strucuted into 3 major packages:
+The project is structured into 3 major packages:
 - Client: control flow for TFTP client and user interaction functionality
 - Server: control flow for TFTP server and basic connection establishment
 - Shared: packet manipulation, data flow, file manipulation and utils that are used by both server
@@ -18,11 +18,10 @@ the main thread remains available to listen for new requests.
 basic functionality for [TFTP](https://www.rfc-editor.org/rfc/rfc1350)
 - send files of any kind (e.g. .txt, .PNG) to server directory
 - receive files of any kind from server to client directory
-- supported sending modes:
+- supported sending modes (mail is deprecated):
     - netascii: converts requested file to netascii format for sending and converts it to local
                 after receiving
     - octet: sends bytes of file as read in by file descriptor
-    - mail: *deprecated*
 
 ## Getting Started
 
