@@ -53,7 +53,7 @@ int buf_to_netascii(uint8_t * data, int data_length, uint8_t * netascii_buf) {
 }
 
 /**
- * \brief           convert a given buffer in netascii mode back to local mode and stores the last
+ * \brief           convert a given buffer in netascii mode back to origin mode and stores the last
  *                  character of the buffer to variable to check whether <CR><LF> or <CR><NULL>
  *                  were split in between packets
  * \param[in]       buf: buffer that should be converted from netascii

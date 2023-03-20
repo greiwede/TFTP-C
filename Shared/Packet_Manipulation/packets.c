@@ -58,8 +58,6 @@ void free_error_packet(struct error_packet * packet) {
     free(packet);
 }
 
-// XXX: add explicit casting when malloc
-
 /**
  * \brief           This function build a request packet with the values from the parameter
  * \param[in]       opcode: Opcode (RRQ, WRQ) for the request packet

@@ -26,7 +26,6 @@ int main(int argc, char *argv[]) {
     int control_socket;
     struct socket_meta * control_socket_information = malloc(sizeof(struct socket_meta));
 
-    // FIXME: last packet 512
     in_addr_t addr;
     // read in server addr
     if (argc >= 2) {
