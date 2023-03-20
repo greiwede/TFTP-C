@@ -73,7 +73,6 @@ int main(int argc, char *argv[]) {
             printf("Failed receiving data \n");
             continue;
         }
-        printf("received %zu bytes \n", recv_len);
 
         request_params.buf = buf;
         request_params.buf_length = recv_len;
