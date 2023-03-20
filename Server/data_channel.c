@@ -57,6 +57,10 @@ void * handle_request(void * request_params) {
                 free_error_packet(error_packet);
             }
     } else {
+        printf("Received Request: %i, File: %s, Mode: %s \n",
+                packet->opcode,
+                packet->file_name,
+                packet->mode);
         if (packet->opcode == OPCODE_RRQ) {
             send_file(packet, socket_information);
         } else if (packet->opcode == OPCODE_WRQ) {
